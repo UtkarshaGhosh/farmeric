@@ -5,21 +5,47 @@ import {
   updateProfile,
   signOut as fbSignOut,
   onAuthStateChanged,
+  onAuthStateChanged,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  GoogleAuthProvider,
+  signInWithPopup,
+  type ConfirmationResult,
 } from "firebase/auth";
 import { doc, setDoc, getDocs, collection, query, where, orderBy } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
+
+// Phone OTP helpers
+let recaptcha: RecaptchaVerifier | null = null;
+let phoneConfirmation: ConfirmationResult | null = null;
+function ensureRecaptcha() {
+  if (!recaptcha) {
+    recaptcha = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+  }
+  return recaptcha;
+}
 
 // Auth
 export async function signInWithEmailOtp(_email: string) {
   throw new Error("Email OTP sign-in not implemented with Firebase");
 }
 
-export async function signInWithPhoneOtp(_phone: string) {
-  throw new Error("Phone OTP sign-in not implemented with Firebase");
+export async function signInWithPhoneOtp(phone: string) {
+  const verifier = ensureRecaptcha();
+  phoneConfirmation = await signInWithPhoneNumber(auth, phone, verifier);
+  return { sent: true } as any;
 }
 
-export async function verifyPhoneOtp(_phone: string, _token: string) {
-  throw new Error("Phone OTP verification not implemented with Firebase");
+export async function verifyPhoneOtp(_phone: string, token: string) {
+  if (!phoneConfirmation) throw new Error("No OTP in progress. Please request OTP again.");
+  const cred = await phoneConfirmation.confirm(token);
+  return { user: cred.user } as any;
+}
+
+export async function signInWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  const cred = await signInWithPopup(auth, provider);
+  return { user: cred.user } as any;
 }
 
 export async function signOut() {
