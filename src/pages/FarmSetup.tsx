@@ -35,7 +35,7 @@ export default function FarmSetup() {
     }
     setLoading(true);
     try {
-      await createFarm({ name, location: { district, state: stateName }, livestock_type: livestock, herd_size: herdSize || 0 });
+      await createFarm({ farm_name: name, location: { district, state: stateName }, livestock_type: livestock, herd_size: herdSize || 0 });
       toast({ title: "Farm created" });
       navigate("/");
     } catch (e: any) {
