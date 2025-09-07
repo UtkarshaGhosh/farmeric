@@ -95,8 +95,10 @@ export async function uploadComplianceDocument(farmId: string, file: File, docum
   return data
 }
 
-export function getComplianceFileUrl(path: string) {
-  return supabase.storage.from('compliance').getPublicUrl(path).data.publicUrl
+export async function getComplianceFileUrl(path: string, expiresInSeconds = 3600) {
+  const { data, error } = await supabase.storage.from('compliance').createSignedUrl(path, expiresInSeconds)
+  if (error) throw error
+  return data.signedUrl
 }
 
 export async function listComplianceRecordsByFarm(farmId: string) {
