@@ -1,6 +1,8 @@
-import { Bell, Menu, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Menu, Globe, Bell, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "@/integrations/supabase/api";
 
 interface FarmHeaderProps {
   farmerName: string;
@@ -10,6 +12,7 @@ interface FarmHeaderProps {
 }
 
 export function FarmHeader({ farmerName, farmName, riskLevel, notifications }: FarmHeaderProps) {
+  const navigate = useNavigate();
   const getRiskColor = (level: string) => {
     switch (level) {
       case "low": return "bg-risk-low-bg text-risk-low border-risk-low";
@@ -48,6 +51,11 @@ export function FarmHeader({ farmerName, farmName, riskLevel, notifications }: F
                 {notifications}
               </Badge>
             )}
+          </Button>
+
+          <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate('/auth'); }}>
+            <LogOut className="h-4 w-4" />
+            <span className="ml-2 hidden sm:inline">Logout</span>
           </Button>
         </div>
       </div>

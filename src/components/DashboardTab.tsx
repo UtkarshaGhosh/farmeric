@@ -1,4 +1,6 @@
-import { RiskAssessmentCard } from "@/components/RiskAssessmentCard";
+import { useState } from "react";
+import { RiskAssessmentCard } from "./RiskAssessmentCard";
+import { RiskAssessmentForm } from "./RiskAssessmentForm";
 
 interface DashboardTabProps {
   farmerData: {
@@ -7,6 +9,7 @@ interface DashboardTabProps {
 }
 
 export const DashboardTab = ({ farmerData }: DashboardTabProps) => {
+  const [open, setOpen] = useState(false)
   return (
     <div className="space-y-6">
       {/* Quick Stats Cards */}
@@ -22,13 +25,15 @@ export const DashboardTab = ({ farmerData }: DashboardTabProps) => {
       </div>
 
       {/* Risk Assessment */}
-      <RiskAssessmentCard 
+      <RiskAssessmentCard
         currentScore={75}
         maxScore={100}
         riskLevel={farmerData.riskLevel}
         lastAssessment="2 weeks ago"
         daysUntilNext={30}
+        onStartNewAssessment={() => setOpen(true)}
       />
+      <RiskAssessmentForm open={open} onOpenChange={setOpen} />
     </div>
   );
 };

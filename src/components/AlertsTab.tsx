@@ -1,6 +1,8 @@
-import { DiseaseAlert } from "@/components/DiseaseAlert";
+import { useEffect, useState } from "react";
+import { listAlertsByLocation } from "@/integrations/supabase/api";
+import { DiseaseAlert } from "./DiseaseAlert";
 
-const diseaseAlerts = [
+const mockAlerts = [
   {
     id: "1",
     diseaseName: "Avian Influenza H5N1",
@@ -24,14 +26,36 @@ const diseaseAlerts = [
 ];
 
 export const AlertsTab = () => {
+  const [alerts, setAlerts] = useState(mockAlerts);
+  useEffect(() => {
+    (async () => {
+      try {
+        const rows = await listAlertsByLocation();
+        const mapped = rows.map(r => ({
+          id: r.id,
+          diseaseName: r.disease_name,
+          description: r.description || "",
+          location: r.location,
+          distance: "",
+          severity: r.severity as 'low' | 'medium' | 'high',
+          issuedDate: new Date(r.issued_date).toISOString().slice(0,10),
+          issuedBy: r.issued_by || 'Veterinary Office'
+        }));
+        if (mapped.length) setAlerts(mapped as any);
+      } catch (e) {
+        // keep mock
+      }
+    })();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-destructive/10 to-destructive/20 p-4 rounded-xl border border-destructive/20">
         <h2 className="text-lg font-semibold text-destructive mb-2">Active Alerts</h2>
-        <p className="text-sm text-muted-foreground">2 disease outbreaks in your area</p>
+        <p className="text-sm text-muted-foreground">{alerts.length} disease outbreaks in your area</p>
       </div>
 
-      <DiseaseAlert alerts={diseaseAlerts} />
+      <DiseaseAlert alerts={alerts as any} />
     </div>
   );
 };
