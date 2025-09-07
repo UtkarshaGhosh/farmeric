@@ -59,7 +59,14 @@ export default function Auth() {
       toast({ title: session ? "Account created" : "Check your email to confirm" });
       navigate("/");
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || String(err) });
+      const message = err?.message || String(err);
+      const lower = (message || "").toLowerCase();
+      if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
+        toast({ title: "Email already registered", description: "Please sign in with this email.", variant: "destructive" });
+        setTab("login");
+      } else {
+        toast({ title: "Error", description: message, variant: "destructive" });
+      }
     } finally {
       setLoading(false);
     }
