@@ -1,16 +1,35 @@
+import { useState } from "react";
 import { FarmHeader } from "@/components/FarmHeader";
-import { RiskAssessmentCard } from "@/components/RiskAssessmentCard";
-import { TrainingModuleCard } from "@/components/TrainingModuleCard";
-import { ComplianceTracker } from "@/components/ComplianceTracker";
-import { DiseaseAlert } from "@/components/DiseaseAlert";
+import { TabNavigation } from "@/components/TabNavigation";
+import { DashboardTab } from "@/components/DashboardTab";
+import { TrainingTab } from "@/components/TrainingTab";
+import { ComplianceTab } from "@/components/ComplianceTab";
+import { AlertsTab } from "@/components/AlertsTab";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+  
   // Demo data - would come from Supabase in real implementation
   const farmerData = {
     name: "John Smith",
     farmName: "Green Valley Farm",
     riskLevel: "medium" as const,
     notifications: 3
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return <DashboardTab farmerData={farmerData} />;
+      case "training":
+        return <TrainingTab />;
+      case "compliance":
+        return <ComplianceTab />;
+      case "alerts":
+        return <AlertsTab />;
+      default:
+        return <DashboardTab farmerData={farmerData} />;
+    }
   };
 
   const trainingModules = [
@@ -84,7 +103,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <FarmHeader 
         farmerName={farmerData.name}
         farmName={farmerData.farmName}
@@ -92,35 +111,11 @@ const Index = () => {
         notifications={farmerData.notifications}
       />
       
-      <main className="p-4 max-w-md mx-auto space-y-6">
-        {/* Risk Assessment Section */}
-        <RiskAssessmentCard 
-          currentScore={75}
-          maxScore={100}
-          riskLevel={farmerData.riskLevel}
-          lastAssessment="2 weeks ago"
-          daysUntilNext={30}
-        />
-
-        {/* Disease Alerts */}
-        <DiseaseAlert alerts={diseaseAlerts} />
-
-        {/* Training Modules */}
-        <section>
-          <h2 className="text-lg font-semibold mb-4">Training Modules</h2>
-          <div className="space-y-4">
-            {trainingModules.map((module) => (
-              <TrainingModuleCard key={module.id} module={module} />
-            ))}
-          </div>
-        </section>
-
-        {/* Compliance Tracker */}
-        <ComplianceTracker 
-          records={complianceRecords}
-          completionRate={67}
-        />
+      <main className="p-4 max-w-md mx-auto">
+        {renderTabContent()}
       </main>
+      
+      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };
