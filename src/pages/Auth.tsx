@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { signInWithPassword, signUpWithPassword } from "@/integrations/firebase/api";
+import { signInWithPassword, signUpWithPassword, signInWithPhoneOtp, verifyPhoneOtp, signInWithGoogle } from "@/integrations/firebase/api";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { signOut } from "@/integrations/firebase/api";
@@ -13,12 +13,15 @@ export default function Auth() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const [tab, setTab] = useState<"login" | "signup">("login");
+  const [tab, setTab] = useState<"login" | "signup" | "phone">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -81,9 +84,10 @@ export default function Auth() {
         </CardHeader>
         <CardContent>
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-            <TabsList className="w-full grid grid-cols-2">
+            <TabsList className="w-full grid grid-cols-3">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="phone">Phone OTP</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="mt-4">
@@ -98,6 +102,9 @@ export default function Auth() {
                 </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password}>Sign In</Button>
               </form>
+              <div className="mt-4">
+                <Button variant="outline" className="w-full" onClick={async () => { try { setLoading(true); await signInWithGoogle(); navigate("/"); } catch (e:any) { toast({ title: "Error", description: e.message || String(e) }); } finally { setLoading(false); }}}>Continue with Google</Button>
+              </div>
             </TabsContent>
 
             <TabsContent value="signup" className="mt-4">
@@ -120,6 +127,35 @@ export default function Auth() {
                 </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password || !confirm}>Create Account</Button>
               </form>
+            </TabsContent>
+
+            <TabsContent value="phone" className="mt-4">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input id="phone" type="tel" placeholder="+1 555 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </div>
+                {otpSent && (
+                  <div className="space-y-1">
+                    <Label htmlFor="otp">OTP Code</Label>
+                    <Input id="otp" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="123456" />
+                  </div>
+                )}
+                {!otpSent ? (
+                  <Button className="w-full" disabled={loading || !phone} onClick={async () => {
+                    try { setLoading(true); await signInWithPhoneOtp(phone); setOtpSent(true); toast({ title: "OTP sent" }); }
+                    catch (e:any) { toast({ title: "Error", description: e.message || String(e) }); }
+                    finally { setLoading(false); }
+                  }}>Send OTP</Button>
+                ) : (
+                  <Button className="w-full" disabled={loading || !otp} onClick={async () => {
+                    try { setLoading(true); await verifyPhoneOtp(phone, otp); navigate("/"); }
+                    catch (e:any) { toast({ title: "Error", description: e.message || String(e) }); }
+                    finally { setLoading(false); }
+                  }}>Verify & Continue</Button>
+                )}
+                <div id="recaptcha-container" />
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
