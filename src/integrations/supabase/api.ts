@@ -24,6 +24,18 @@ export async function signOut() {
   if (error) throw error
 }
 
+export async function signInWithPassword(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw error
+  return data
+}
+
+export async function signUpWithPassword(email: string, password: string, name?: string) {
+  const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } })
+  if (error) throw error
+  return data
+}
+
 export async function getSession() {
   const { data, error } = await supabase.auth.getSession()
   if (error) throw error
