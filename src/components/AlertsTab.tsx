@@ -1,5 +1,3 @@
-import { DiseaseAlert } from "@/components/DiseaseAlert";
-
 import { useEffect, useState } from "react";
 import { listAlertsByLocation } from "@/integrations/supabase/api";
 import { DiseaseAlert } from "./DiseaseAlert";
