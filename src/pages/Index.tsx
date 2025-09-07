@@ -23,7 +23,7 @@ const Index = () => {
     (async () => {
       try {
         const profile = await getUserProfile();
-        if (!profile || !profile.name || !profile.language || !profile.location?.district) {
+        if (!profile || !profile.name || !profile.language_preference || !profile.location?.district) {
           navigate("/onboarding", { replace: true });
           return;
         }
