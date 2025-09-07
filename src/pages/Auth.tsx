@@ -74,7 +74,7 @@ export default function Auth() {
           <CardDescription>Sign in or create an account</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
             <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
