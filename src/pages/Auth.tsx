@@ -154,10 +154,10 @@ export default function Auth() {
                     finally { setLoading(false); }
                   }}>Verify & Continue</Button>
                 )}
-                <div id="recaptcha-container" />
               </div>
             </TabsContent>
           </Tabs>
+          <div id="recaptcha-container" className="hidden" />
         </CardContent>
       </Card>
     </div>
