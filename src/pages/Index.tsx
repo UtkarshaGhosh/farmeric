@@ -89,18 +89,6 @@ const Index = () => {
     }
   ];
 
-  const diseaseAlerts = [
-    {
-      id: "1",
-      diseaseName: "Avian Influenza H5N1",
-      description: "High pathogenicity avian influenza detected in commercial poultry farm.",
-      location: "Riverside County",
-      distance: "12 km away",
-      severity: "high" as const,
-      issuedDate: "2024-03-15",
-      issuedBy: "State Veterinary Office"
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-background pb-20">
