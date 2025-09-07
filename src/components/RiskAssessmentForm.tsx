@@ -125,6 +125,16 @@ export function RiskAssessmentForm({ open, onOpenChange }: { open: boolean; onOp
           <div className="text-muted-foreground">Calculated Risk Score</div>
           <div className="font-semibold">{score}/100</div>
         </div>
+        <div className="text-sm">
+          <div className="text-muted-foreground">
+            {score <= 40 ? "Risk Level: Low" : score <= 70 ? "Risk Level: Medium" : "Risk Level: High"}
+          </div>
+          <div className="mt-1">
+            {score <= 40 && "Keep following best practices."}
+            {score > 40 && score <= 70 && "Improve fencing, PPE usage, and hygiene protocols."}
+            {score > 70 && "High risk – consult veterinarian immediately."}
+          </div>
+        </div>
         {error && <div className="text-sm text-destructive">{error}</div>}
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
