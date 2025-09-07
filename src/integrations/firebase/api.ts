@@ -19,7 +19,14 @@ let recaptcha: RecaptchaVerifier | null = null;
 let phoneConfirmation: ConfirmationResult | null = null;
 function ensureRecaptcha() {
   if (!recaptcha) {
-    recaptcha = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+    let container = document.getElementById("recaptcha-container") as HTMLElement | null;
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "recaptcha-container";
+      container.style.display = "none";
+      document.body.appendChild(container);
+    }
+    recaptcha = new RecaptchaVerifier(auth, container, { size: "invisible" });
   }
   return recaptcha;
 }

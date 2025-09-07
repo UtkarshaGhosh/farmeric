@@ -157,7 +157,6 @@ export default function Auth() {
               </div>
             </TabsContent>
           </Tabs>
-          <div id="recaptcha-container" className="hidden" />
         </CardContent>
       </Card>
     </div>
