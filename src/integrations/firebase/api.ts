@@ -5,7 +5,6 @@ import {
   updateProfile,
   signOut as fbSignOut,
   onAuthStateChanged,
-  onAuthStateChanged,
   RecaptchaVerifier,
   signInWithPhoneNumber,
   GoogleAuthProvider,
