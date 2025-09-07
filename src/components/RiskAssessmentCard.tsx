@@ -76,7 +76,7 @@ export function RiskAssessmentCard({
           </div>
         </div>
         
-        <Button className="w-full" onClick={(props as any)?.onStartNewAssessment}>
+        <Button className="w-full" onClick={onStartNewAssessment}>
           Start New Assessment
         </Button>
       </CardContent>
