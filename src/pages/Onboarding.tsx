@@ -26,7 +26,7 @@ export default function Onboarding() {
     }
     setLoading(true);
     try {
-      await upsertUserProfile({ name, location: { district, village, state: stateName }, language });
+      await upsertUserProfile({ name, location: { district, village, state: stateName }, language_preference: language });
       toast({ title: "Profile saved" });
       navigate("/farm-setup");
     } catch (e: any) {
