@@ -12,7 +12,7 @@ import {
   type ConfirmationResult,
 } from "firebase/auth";
 import { doc, setDoc, getDocs, getDoc, collection, query, where, orderBy } from "firebase/firestore";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Phone OTP helpers
 let recaptcha: RecaptchaVerifier | null = null;
@@ -67,7 +67,17 @@ export async function signUpWithPassword(email: string, password: string, name?:
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   if (name) await updateProfile(cred.user, { displayName: name });
   try {
-    await setDoc(doc(db, "users", cred.user.uid), { id: cred.user.uid, email, name: name || cred.user.displayName || "", created_at: Date.now(), updated_at: Date.now() });
+    const now = new Date().toISOString();
+    await setDoc(doc(db, "users", cred.user.uid), {
+      uid: cred.user.uid,
+      name: name || cred.user.displayName || "",
+      email,
+      phone: cred.user.phoneNumber || null,
+      role: "farmer",
+      language_preference: null,
+      created_at: now,
+      updated_at: now,
+    });
   } catch {}
   return { session: { user: { id: cred.user.uid } } } as any;
 }
@@ -103,11 +113,20 @@ export async function getUserProfile() {
   return snap.data() as any;
 }
 
-export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language?: string }) {
+export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language_preference?: string; phone?: string }) {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
-  const now = Date.now();
-  const payload: any = { id: user.uid, email: user.email || "", ...profile, updated_at: now };
+  const now = new Date().toISOString();
+  const payload: any = {
+    uid: user.uid,
+    email: user.email || "",
+    name: profile.name,
+    phone: profile.phone ?? user.phoneNumber ?? null,
+    role: "farmer",
+    language_preference: profile.language_preference ?? null,
+    location: profile.location ?? null,
+    updated_at: now,
+  };
   const existing = await getDoc(doc(db, "users", user.uid));
   if (!existing.exists()) payload.created_at = now;
   await setDoc(doc(db, "users", user.uid), payload, { merge: true } as any);
@@ -118,28 +137,57 @@ export async function upsertUserProfile(profile: { name: string; location?: { di
 export async function createFarm(input: any) {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
-  const id = crypto.randomUUID();
-  await setDoc(doc(db, "farms", id), { id, farmer_id: user.uid, created_at: Date.now(), updated_at: Date.now(), ...input });
-  return { id, ...input } as any;
+  const farm_id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const farmDoc = {
+    farm_id,
+    farmer_uid: user.uid,
+    farm_name: input.farm_name || input.name,
+    location: input.location ?? null,
+    livestock_type: input.livestock_type,
+    herd_size: input.herd_size ?? 0,
+    biosecurity_level: input.biosecurity_level ?? null,
+    created_at: now,
+    updated_at: now,
+  };
+  await setDoc(doc(db, "farms", farm_id), farmDoc as any);
+  return farmDoc as any;
 }
 
 export async function listMyFarms() {
   const user = auth.currentUser;
   if (!user) return [];
   try {
-    const q = query(collection(db, "farms"), where("farmer_id", "==", user.uid));
+    const q = query(collection(db, "farms"), where("farmer_uid", "==", user.uid));
     const snap = await getDocs(q);
-    return snap.docs.map((d) => d.data()) as any[];
+    const rows = snap.docs.map((d) => d.data()) as any[];
+    return rows.map((r) => ({ ...r, id: r.farm_id, name: r.farm_name }));
   } catch {
     return [];
   }
 }
 
 // Risk assessments
-export async function submitRiskAssessment(input: any) {
-  const id = crypto.randomUUID();
-  await setDoc(doc(db, "risk_assessments", id), { id, date: Date.now(), ...input });
-  return { id, ...input } as any;
+function riskLevelFromScore(score: number) {
+  if (score <= 40) return "low";
+  if (score <= 70) return "medium";
+  return "high";
+}
+
+export async function submitRiskAssessment(input: { farm_id: string; score: number; assessment_details?: any; answers?: any }) {
+  const assessment_id = crypto.randomUUID();
+  const date = new Date().toISOString();
+  const answers = input.answers ?? input.assessment_details ?? {};
+  const docBody = {
+    assessment_id,
+    farm_id: input.farm_id,
+    date,
+    score: input.score,
+    risk_level: riskLevelFromScore(input.score),
+    answers,
+  };
+  await setDoc(doc(db, "risk_assessments", assessment_id), docBody as any);
+  return docBody as any;
 }
 
 export async function listFarmAssessments(farmId: string) {
@@ -156,36 +204,42 @@ export async function listFarmAssessments(farmId: string) {
 export async function listTrainingModules(_params: { livestock_type?: any; language?: any; type?: any }) {
   try {
     const snap = await getDocs(collection(db, "training_modules"));
-    return snap.docs.map((d) => d.data()) as any[];
+    return snap.docs.map((d) => {
+      const data: any = d.data();
+      return { ...data, id: data.module_id ?? data.id };
+    }) as any[];
   } catch {
     return [];
   }
 }
 
 export async function upsertTrainingModule(module: any) {
-  const id = module.id || crypto.randomUUID();
-  await setDoc(doc(db, "training_modules", id), { id, ...module }, { merge: true } as any);
-  return { id, ...module } as any;
+  const module_id = module.module_id || module.id || crypto.randomUUID();
+  const body = { module_id, ...module };
+  await setDoc(doc(db, "training_modules", module_id), body, { merge: true } as any);
+  return body as any;
 }
 
 // Compliance
 export async function uploadComplianceDocument(farmId: string, file: File, document_type: string) {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
-  const path = `farm/${farmId}/${crypto.randomUUID()}-${file.name}`;
+  const path = `compliance_docs/${farmId}/${crypto.randomUUID()}-${file.name}`;
   const fileRef = ref(storage, path);
   await uploadBytes(fileRef, file, { contentType: file.type || "application/octet-stream" });
-  const id = crypto.randomUUID();
-  await setDoc(doc(db, "compliance_records", id), {
-    id,
+  const url = await getDownloadURL(fileRef);
+  const record_id = crypto.randomUUID();
+  const submission_date = new Date().toISOString();
+  await setDoc(doc(db, "compliance_records", record_id), {
+    record_id,
     farm_id: farmId,
     document_type,
-    file_url: path,
+    file_url: url,
     submitted_by: user.uid,
-    submission_date: Date.now(),
-    status: "Pending",
-  });
-  return { id, file_url: path } as any;
+    submission_date,
+    status: "pending",
+  } as any);
+  return { record_id, file_url: url } as any;
 }
 
 export async function getComplianceFileUrl(path: string, _expiresInSeconds = 3600) {
@@ -212,7 +266,7 @@ export async function listAlertsByLocation(location?: string, severity?: any) {
   try {
     const snap = await getDocs(collection(db, "alerts"));
     let rows = snap.docs.map((d) => d.data()) as any[];
-    if (location) rows = rows.filter((r) => (r.location || "").toLowerCase().includes(location.toLowerCase()));
+    if (location) rows = rows.filter((r) => ((r.location?.district + ", " + r.location?.state) || "").toLowerCase().includes(location.toLowerCase()));
     if (severity) rows = rows.filter((r) => r.severity === severity);
     return rows;
   } catch {
@@ -221,9 +275,11 @@ export async function listAlertsByLocation(location?: string, severity?: any) {
 }
 
 export async function createAlert(alert: any) {
-  const id = crypto.randomUUID();
-  await setDoc(doc(db, "alerts", id), { id, issued_date: Date.now(), ...alert });
-  return { id, ...alert } as any;
+  const alert_id = crypto.randomUUID();
+  const issued_date = new Date().toISOString();
+  const body = { alert_id, issued_date, ...alert };
+  await setDoc(doc(db, "alerts", alert_id), body as any);
+  return body as any;
 }
 
 // Summaries (placeholder)
