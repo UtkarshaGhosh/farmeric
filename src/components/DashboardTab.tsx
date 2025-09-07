@@ -1,5 +1,9 @@
 import { RiskAssessmentCard } from "@/components/RiskAssessmentCard";
 
+import { useState } from "react";
+import { RiskAssessmentCard } from "./RiskAssessmentCard";
+import { RiskAssessmentForm } from "./RiskAssessmentForm";
+
 interface DashboardTabProps {
   farmerData: {
     riskLevel: "low" | "medium" | "high";
