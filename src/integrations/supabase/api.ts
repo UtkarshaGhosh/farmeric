@@ -31,7 +31,12 @@ export async function signInWithPassword(email: string, password: string) {
 }
 
 export async function signUpWithPassword(email: string, password: string, name?: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } })
+  const redirectTo = `${window.location.origin}/auth?confirmed=1`;
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { name }, emailRedirectTo: redirectTo }
+  })
   if (error) throw error
   return data
 }
