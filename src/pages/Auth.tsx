@@ -6,16 +6,29 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { signInWithPassword, signUpWithPassword } from "@/integrations/supabase/api";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { signOut } from "@/integrations/supabase/api";
 
 export default function Auth() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [tab, setTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("confirmed") === "1") {
+      setTab("login");
+      toast({ title: "Email confirmed", description: "Please log in to continue." });
+      signOut().catch(() => {});
+    }
+  }, [location.search]);
 
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
