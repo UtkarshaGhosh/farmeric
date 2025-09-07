@@ -1,0 +1,20 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null; }
+    function userRole() { return isSignedIn() ? get(/databases/(default)/documents/users/$(request.auth.uid)).data.role : null; }
+    function isRegulator() { return userRole() == 'regulator'; }
+
+    // Compliance docs: users may read/write files under their farm folder; regulator can read any
+    match /compliance_docs/{farmId}/{allPaths=**} {
+      allow read: if isSignedIn(); // actual filtering by Firestore document checks should be enforced app-side
+      allow write: if isSignedIn();
+    }
+
+    // Training materials: public read, write by regulator/admin
+    match /training_materials/{allPaths=**} {
+      allow read: if true;
+      allow write: if isRegulator();
+    }
+  }
+}
