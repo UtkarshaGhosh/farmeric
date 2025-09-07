@@ -50,6 +50,13 @@ export async function getSession() {
   });
 }
 
+export function onAuthStateChange(callback: (session: any | null) => void) {
+  const unsub = onAuthStateChanged(auth, (user) => {
+    callback(user ? { user: { id: user.uid, email: user.email } } : null);
+  });
+  return unsub;
+}
+
 export async function getCurrentUserProfile() {
   const user = auth.currentUser;
   if (!user) return null;
