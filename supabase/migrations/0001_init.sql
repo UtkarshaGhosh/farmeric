@@ -246,7 +246,7 @@ create policy "Farmers upload to own farm folder" on storage.objects
     exists(
       select 1 from public.farms f
       where f.farmer_id = auth.uid()
-        and position('farm/'||f.id||'/' in storage.filename(name)) = 1
+        and position('farm/'||f.id||'/' in name) = 1
     )
   );
 
@@ -256,7 +256,7 @@ create policy "Farmers read own objects" on storage.objects
     exists(
       select 1 from public.farms f
       where f.farmer_id = auth.uid()
-        and position('farm/'||f.id||'/' in storage.filename(name)) = 1
+        and position('farm/'||f.id||'/' in name) = 1
     )
   );
 
