@@ -9,14 +9,16 @@ interface RiskAssessmentCardProps {
   riskLevel: "low" | "medium" | "high";
   lastAssessment?: string;
   daysUntilNext?: number;
+  onStartNewAssessment?: () => void;
 }
 
-export function RiskAssessmentCard({ 
-  currentScore = 75, 
-  maxScore = 100, 
-  riskLevel, 
+export function RiskAssessmentCard({
+  currentScore = 75,
+  maxScore = 100,
+  riskLevel,
   lastAssessment = "2 weeks ago",
-  daysUntilNext = 30
+  daysUntilNext = 30,
+  onStartNewAssessment
 }: RiskAssessmentCardProps) {
   const getRiskIcon = (level: string) => {
     switch (level) {
