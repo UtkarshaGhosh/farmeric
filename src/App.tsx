@@ -9,7 +9,7 @@ import Auth from "./pages/Auth";
 import Logout from "./pages/Logout";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getSession, onAuthStateChange } from "@/integrations/supabase/api";
 
 const queryClient = new QueryClient();
 
