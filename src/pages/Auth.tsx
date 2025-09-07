@@ -4,10 +4,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { signInWithPassword, signUpWithPassword } from "@/integrations/supabase/api";
+import { signInWithPassword, signUpWithPassword } from "@/integrations/firebase/api";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { signOut } from "@/integrations/supabase/api";
+import { signOut } from "@/integrations/firebase/api";
 
 export default function Auth() {
   const { toast } = useToast();
