@@ -36,6 +36,8 @@ const QUESTIONS: Question[] = [
     { value: "briefiso", label: "Brief isolation (<7 days)", risk: 0.6 },
     { value: "quarantine", label: "14+ days quarantine + testing", risk: 0.15 },
   ]},
+  { id: "q8", text: "Do farm workers and visitors use protective clothing (PPE)?", type: "yesno", weight: 12 },
+  { id: "q9", text: "Are sick animals isolated from healthy stock?", type: "yesno", weight: 12 },
 ];
 
 function computeRiskScore(answers: Record<string, string>): number {
@@ -122,6 +124,16 @@ export function RiskAssessmentForm({ open, onOpenChange }: { open: boolean; onOp
         <div className="flex items-center justify-between text-sm">
           <div className="text-muted-foreground">Calculated Risk Score</div>
           <div className="font-semibold">{score}/100</div>
+        </div>
+        <div className="text-sm">
+          <div className="text-muted-foreground">
+            {score <= 40 ? "Risk Level: Low" : score <= 70 ? "Risk Level: Medium" : "Risk Level: High"}
+          </div>
+          <div className="mt-1">
+            {score <= 40 && "Keep following best practices."}
+            {score > 40 && score <= 70 && "Improve fencing, PPE usage, and hygiene protocols."}
+            {score > 70 && "High risk – consult veterinarian immediately."}
+          </div>
         </div>
         {error && <div className="text-sm text-destructive">{error}</div>}
         <DialogFooter>

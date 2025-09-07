@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isSelf(uid) { return isSignedIn() && request.auth.uid == uid; }
+    function userRole() { return isSignedIn() ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role : null; }
+    function isRegulator() { return userRole() == 'regulator'; }
+    function isOwnerOfFarm(farmId) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/farms/$(farmId)) &&
+        get(/databases/$(database)/documents/farms/$(farmId)).data.farmer_uid == request.auth.uid;
+    }
+
+    // Users: farmers can read/write their own profile
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isRegulator();
+      allow create: if isSelf(request.resource.data.uid);
+      allow update: if isSelf(uid) || isRegulator();
+      allow delete: if false;
+    }
+
+    // Farms: only owner may read/write
+    match /farms/{farm_id} {
+      allow read, create, update: if isSignedIn() && ((request.method == 'create' && request.resource.data.farmer_uid == request.auth.uid) || resource.data.farmer_uid == request.auth.uid);
+      allow delete: if false;
+    }
+
+    // Risk assessments: tied to a farm, owner can create/read
+    match /risk_assessments/{assessment_id} {
+      allow read: if isOwnerOfFarm(resource.data.farm_id) || isRegulator();
+      allow create: if isOwnerOfFarm(request.resource.data.farm_id);
+      allow update, delete: if false;
+    }
+
+    // Training modules: public read, admin/regulator write
+    match /training_modules/{module_id} {
+      allow read: if true;
+      allow create, update, delete: if isRegulator();
+    }
+
+    // Compliance records: owner can create/read; regulator can read/update status
+    match /compliance_records/{record_id} {
+      allow read: if isOwnerOfFarm(resource.data.farm_id) || isRegulator();
+      allow create: if isOwnerOfFarm(request.resource.data.farm_id);
+      allow update: if isRegulator();
+      allow delete: if false;
+    }
+
+    // Alerts: public read; regulator/admin write
+    match /alerts/{alert_id} {
+      allow read: if true;
+      allow create, update, delete: if isRegulator();
+    }
+  }
+}

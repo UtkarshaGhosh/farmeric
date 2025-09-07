@@ -42,11 +42,11 @@ export const ComplianceTab = () => {
         if (farms[0]) {
           const rows = await listComplianceRecordsByFarm(farms[0].id);
           const mapped = rows.map(r => ({
-            id: r.id,
+            id: r.record_id || r.id,
             documentType: r.document_type,
-            fileName: r.file_url.split('/').pop(),
-            status: (r.status.toLowerCase()) as 'pending' | 'approved' | 'rejected',
-            submissionDate: new Date(r.submission_date).toISOString().slice(0,10)
+            fileName: r.file_url?.split('/').pop(),
+            status: (String(r.status).toLowerCase()) as 'pending' | 'approved' | 'rejected',
+            submissionDate: r.submission_date ? new Date(r.submission_date).toISOString().slice(0,10) : ""
           }));
           if (mapped.length) setRecords(mapped as any);
         }
@@ -65,11 +65,11 @@ export const ComplianceTab = () => {
       await uploadComplianceDocument(farmId, file, 'General Document');
       const rows = await listComplianceRecordsByFarm(farmId);
       const mapped = rows.map(r => ({
-        id: r.id,
+        id: r.record_id || r.id,
         documentType: r.document_type,
-        fileName: r.file_url.split('/').pop(),
-        status: (r.status.toLowerCase()) as 'pending' | 'approved' | 'rejected',
-        submissionDate: new Date(r.submission_date).toISOString().slice(0,10)
+        fileName: r.file_url?.split('/').pop(),
+        status: (String(r.status).toLowerCase()) as 'pending' | 'approved' | 'rejected',
+        submissionDate: r.submission_date ? new Date(r.submission_date).toISOString().slice(0,10) : ""
       }));
       setRecords(mapped as any);
     } catch (e) {

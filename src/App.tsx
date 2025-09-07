@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Logout from "./pages/Logout";
+import Onboarding from "./pages/Onboarding";
+import FarmSetup from "./pages/FarmSetup";
+import AdminSeed from "./pages/AdminSeed";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { getSession, onAuthStateChange } from "@/integrations/firebase/api";
@@ -47,7 +50,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+          <Route path="/farm-setup" element={<RequireAuth><FarmSetup /></RequireAuth>} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="/admin/seed" element={<RequireAuth><AdminSeed /></RequireAuth>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
