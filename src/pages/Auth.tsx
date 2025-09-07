@@ -115,9 +115,6 @@ export default function Auth() {
               </form>
             </TabsContent>
           </Tabs>
-          <div className="text-xs text-muted-foreground mt-4 text-center">
-            <Link to="/">Back to app</Link>
-          </div>
         </CardContent>
       </Card>
     </div>
