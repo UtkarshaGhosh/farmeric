@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { submitRiskAssessment, listMyFarms } from "@/integrations/supabase/api";
+import { submitRiskAssessment, listMyFarms } from "@/integrations/firebase/api";
 
 interface Question {
   id: string;
