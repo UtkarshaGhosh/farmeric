@@ -9,7 +9,7 @@ import Auth from "./pages/Auth";
 import Logout from "./pages/Logout";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getSession, onAuthStateChange } from "@/integrations/firebase/api";
 
 const queryClient = new QueryClient();
 
@@ -18,17 +18,19 @@ function RequireAuth({ children }: { children: React.ReactElement }) {
   const [isAuthed, setAuthed] = useState(false);
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
+    getSession().then((res: any) => {
       if (!mounted) return;
-      setAuthed(!!data.session);
+      setAuthed(!!res.session);
       setLoading(false);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+    }).catch(() => { if (mounted) setLoading(false); });
+
+    const unsub = onAuthStateChange((session) => {
       setAuthed(!!session);
     });
+
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      if (typeof unsub === 'function') unsub();
     };
   }, []);
   if (loading) return null;

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { signOut } from "@/integrations/supabase/api";
+import { signOut } from "@/integrations/firebase/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Logout = () => {

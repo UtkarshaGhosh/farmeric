@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { listTrainingModules } from "@/integrations/supabase/api";
-import type { Enums } from "@/integrations/supabase/types";
+import { listTrainingModules } from "@/integrations/firebase/api";
 import { TrainingModuleCard } from "./TrainingModuleCard";
 
 const mockTraining = [
@@ -40,7 +39,7 @@ export const TrainingTab = () => {
   useEffect(() => {
     (async () => {
       try {
-        const rows = await listTrainingModules({} as { livestock_type?: Enums<'livestock_type'>, language?: Enums<'language'>, type?: Enums<'module_type'> });
+        const rows = await listTrainingModules({});
         const mapped = rows.map(r => ({
           id: r.id,
           title: r.title,
