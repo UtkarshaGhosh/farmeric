@@ -11,7 +11,7 @@ import {
   signInWithPopup,
   type ConfirmationResult,
 } from "firebase/auth";
-import { doc, setDoc, getDocs, collection, query, where, orderBy } from "firebase/firestore";
+import { doc, setDoc, getDocs, getDoc, collection, query, where, orderBy } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
 
 // Phone OTP helpers
@@ -67,7 +67,7 @@ export async function signUpWithPassword(email: string, password: string, name?:
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   if (name) await updateProfile(cred.user, { displayName: name });
   try {
-    await setDoc(doc(db, "users", cred.user.uid), { id: cred.user.uid, email, name: name || cred.user.displayName || "" });
+    await setDoc(doc(db, "users", cred.user.uid), { id: cred.user.uid, email, name: name || cred.user.displayName || "", created_at: Date.now(), updated_at: Date.now() });
   } catch {}
   return { session: { user: { id: cred.user.uid } } } as any;
 }
@@ -94,6 +94,27 @@ export async function getCurrentUserProfile() {
   return { id: user.uid, email: user.email, name: user.displayName } as any;
 }
 
+// User profile (onboarding)
+export async function getUserProfile() {
+  const user = auth.currentUser;
+  if (!user) return null;
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists()) return null;
+  return snap.data() as any;
+}
+
+export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language?: string }) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+  const now = Date.now();
+  const payload: any = { id: user.uid, email: user.email || "", ...profile, updated_at: now };
+  const existing = await getDoc(doc(db, "users", user.uid));
+  if (!existing.exists()) payload.created_at = now;
+  await setDoc(doc(db, "users", user.uid), payload, { merge: true } as any);
+  return payload;
+}
+
+// Farms
 export async function createFarm(input: any) {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
@@ -114,6 +135,7 @@ export async function listMyFarms() {
   }
 }
 
+// Risk assessments
 export async function submitRiskAssessment(input: any) {
   const id = crypto.randomUUID();
   await setDoc(doc(db, "risk_assessments", id), { id, date: Date.now(), ...input });
@@ -130,6 +152,7 @@ export async function listFarmAssessments(farmId: string) {
   }
 }
 
+// Training modules
 export async function listTrainingModules(_params: { livestock_type?: any; language?: any; type?: any }) {
   try {
     const snap = await getDocs(collection(db, "training_modules"));
@@ -145,6 +168,7 @@ export async function upsertTrainingModule(module: any) {
   return { id, ...module } as any;
 }
 
+// Compliance
 export async function uploadComplianceDocument(farmId: string, file: File, document_type: string) {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
@@ -183,6 +207,7 @@ export async function setComplianceStatus(recordId: string, status: any) {
   return { id: recordId, status } as any;
 }
 
+// Alerts
 export async function listAlertsByLocation(location?: string, severity?: any) {
   try {
     const snap = await getDocs(collection(db, "alerts"));
@@ -201,6 +226,7 @@ export async function createAlert(alert: any) {
   return { id, ...alert } as any;
 }
 
+// Summaries (placeholder)
 export async function getFarmerSummary() {
   return { totalFarms: 0, averageRiskScore: 0, complianceProgress: "0/0" };
 }
