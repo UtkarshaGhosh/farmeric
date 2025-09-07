@@ -47,6 +47,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+          <Route path="/farm-setup" element={<RequireAuth><FarmSetup /></RequireAuth>} />
           <Route path="/logout" element={<Logout />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
