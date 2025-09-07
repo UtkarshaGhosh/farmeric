@@ -36,6 +36,8 @@ const QUESTIONS: Question[] = [
     { value: "briefiso", label: "Brief isolation (<7 days)", risk: 0.6 },
     { value: "quarantine", label: "14+ days quarantine + testing", risk: 0.15 },
   ]},
+  { id: "q8", text: "Do farm workers and visitors use protective clothing (PPE)?", type: "yesno", weight: 12 },
+  { id: "q9", text: "Are sick animals isolated from healthy stock?", type: "yesno", weight: 12 },
 ];
 
 function computeRiskScore(answers: Record<string, string>): number {
