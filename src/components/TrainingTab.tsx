@@ -1,5 +1,3 @@
-import { TrainingModuleCard } from "@/components/TrainingModuleCard";
-
 import { useEffect, useState } from "react";
 import { listTrainingModules } from "@/integrations/supabase/api";
 import type { Enums } from "@/integrations/supabase/types";
