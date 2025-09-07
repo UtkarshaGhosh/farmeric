@@ -32,13 +32,13 @@ export const AlertsTab = () => {
       try {
         const rows = await listAlertsByLocation();
         const mapped = rows.map(r => ({
-          id: r.id,
+          id: r.alert_id || r.id,
           diseaseName: r.disease_name,
           description: r.description || "",
-          location: r.location,
+          location: r.location ? `${r.location.district}${r.location.state ? ", " + r.location.state : ""}` : "",
           distance: "",
           severity: r.severity as 'low' | 'medium' | 'high',
-          issuedDate: new Date(r.issued_date).toISOString().slice(0,10),
+          issuedDate: r.issued_date ? new Date(r.issued_date).toISOString().slice(0,10) : "",
           issuedBy: r.issued_by || 'Veterinary Office'
         }));
         if (mapped.length) setAlerts(mapped as any);
