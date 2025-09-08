@@ -16,6 +16,7 @@ export default function Onboarding() {
   const [village, setVillage] = useState("");
   const [stateName, setStateName] = useState("");
   const [language, setLanguage] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
