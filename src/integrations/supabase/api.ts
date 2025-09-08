@@ -134,7 +134,12 @@ export async function createFarm(input: any) {
     created_at: now,
   } as any;
   const { error } = await supabase.from('farms').insert(farmDoc as any);
-  if (error) throw error;
+  if (error) {
+    const location = [input.location?.district, input.location?.state].filter(Boolean).join(', ');
+    const { error: err2, data: ins } = await supabase.from('farms').insert({ farmer_id: user.id, location, farm_type: input.livestock_type, herd_size: input.herd_size ?? 0 } as any).select('id').single();
+    if (err2) throw err2;
+    return { id: ins?.id, name: input.farm_name || input.name, livestock_type: input.livestock_type, herd_size: input.herd_size ?? 0 } as any;
+  }
   return farmDoc as any;
 }
 
