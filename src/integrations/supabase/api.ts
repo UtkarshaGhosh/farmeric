@@ -232,6 +232,19 @@ export async function getFarmerSummary() { return { totalFarms: 0, averageRiskSc
 export async function getRegulatorSummary() { return { farmersOnboarded: 0, highRiskFarms: 0, pendingCompliance: 0 }; }
 export async function savePushToken(_token: string, _platform?: string) { return { ok: true } as any; }
 
+export async function listAllFarms() {
+  const { data, error } = await supabase.from('farms').select('*');
+  if (error) return [];
+  const rows = (data || []) as any[];
+  return rows.map((r) => ({ ...r, id: r.farm_id, name: r.farm_name }));
+}
+
+export async function listPendingCompliance() {
+  const { data, error } = await supabase.from('compliance_records').select('*').eq('status', 'pending').order('submission_date', { ascending: false });
+  if (error) return [];
+  return (data || []) as any[];
+}
+
 // Seed helpers for demo
 export async function seedDemoData() {
   const { data: authData } = await supabase.auth.getUser();
