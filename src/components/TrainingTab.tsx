@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listTrainingModules } from "@/integrations/firebase/api";
+import { listTrainingModules } from "@/integrations/supabase/api";
 import { TrainingModuleCard } from "./TrainingModuleCard";
 
 const mockTraining = [
