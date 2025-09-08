@@ -301,7 +301,12 @@ export async function listAllFarms() {
   const { data, error } = await supabase.from('farms').select('*');
   if (error) return [];
   const rows = (data || []) as any[];
-  return rows.map((r) => ({ ...r, id: r.farm_id, name: r.farm_name }));
+  return rows.map((r) => ({
+    ...r,
+    id: r.farm_id ?? r.id,
+    name: r.farm_name ?? r.location ?? 'Farm',
+    livestock_type: r.livestock_type ?? r.farm_type,
+  }));
 }
 
 export async function listPendingCompliance() {
