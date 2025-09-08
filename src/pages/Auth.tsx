@@ -125,6 +125,10 @@ export default function Auth() {
                   <Input id="email2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
                 </div>
                 <div className="space-y-1">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="e.g., 9876543210" />
+                </div>
+                <div className="space-y-1">
                   <Label htmlFor="password2">Password</Label>
                   <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
                 </div>
