@@ -112,13 +112,15 @@ export async function createFarm(input: any) {
     farm_id,
     farmer_uid: user.id,
     farm_name: input.farm_name || input.name,
-    location: input.location ?? null,
+    district: input.location?.district ?? null,
+    state: input.location?.state ?? null,
+    lat: null as any,
+    lng: null as any,
     livestock_type: input.livestock_type,
     herd_size: input.herd_size ?? 0,
-    biosecurity_level: input.biosecurity_level ?? null,
+    biosecurity_level: input.biosecurity_level ?? 'low',
     created_at: now,
-    updated_at: now,
-  };
+  } as any;
   const { error } = await supabase.from('farms').insert(farmDoc as any);
   if (error) throw error;
   return farmDoc as any;
