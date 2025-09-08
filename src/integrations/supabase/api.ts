@@ -203,7 +203,7 @@ export async function upsertTrainingModule(module: any) {
   return body as any;
 }
 
-export async function uploadComplianceDocument(farmId: string, file: File, document_type: string) {
+export async function uploadComplianceDocument(farmId: string | number, file: File, document_type: string) {
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
   if (!user) throw new Error('Not authenticated');
@@ -223,7 +223,16 @@ export async function uploadComplianceDocument(farmId: string, file: File, docum
     submission_date,
     status: 'pending',
   } as any);
-  if (error) throw error;
+  if (error) {
+    const { error: err2 } = await supabase.from('compliance_docs').insert({
+      farm_id: Number(farmId),
+      farmer_id: user.id,
+      doc_url: url,
+      status: 'pending',
+      reviewed_by: null,
+    } as any);
+    if (err2) throw err2;
+  }
   return { record_id, file_url: url } as any;
 }
 
