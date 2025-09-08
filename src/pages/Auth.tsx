@@ -123,6 +123,19 @@ export default function Auth() {
                   <Label htmlFor="confirm">Confirm Password</Label>
                   <Input id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required placeholder="••••••" />
                 </div>
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <RadioGroup value={role} onValueChange={(v) => setRole(v as any)} className="flex gap-6">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem id="role-farmer" value="farmer" />
+                      <Label htmlFor="role-farmer">Farmer</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem id="role-vet" value="vet" />
+                      <Label htmlFor="role-vet">Vet</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password || !confirm}>Create Account</Button>
               </form>
             </TabsContent>
