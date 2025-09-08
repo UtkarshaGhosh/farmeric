@@ -214,7 +214,7 @@ export async function listAlertsByLocation(location?: string, severity?: any) {
   const { data, error } = await supabase.from('alerts').select('*');
   if (error) return [];
   let rows = (data || []) as any[];
-  if (location) rows = rows.filter((r) => (((r.location?.district + ", " + r.location?.state) || "").toLowerCase().includes(location.toLowerCase())));
+  if (location) rows = rows.filter((r) => ((`${r.district || ''}${r.state ? ', ' + r.state : ''}`).toLowerCase().includes(location.toLowerCase())));
   if (severity) rows = rows.filter((r) => r.severity === severity);
   return rows;
 }
