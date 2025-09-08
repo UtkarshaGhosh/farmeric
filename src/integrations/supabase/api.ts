@@ -253,7 +253,7 @@ export async function seedDemoData() {
   const farmsRes = await supabase.from('farms').select('farm_id').eq('farmer_uid', user.id).limit(1);
   let farmId = farmsRes.data?.[0]?.farm_id as string | undefined;
   if (!farmId) {
-    const f = { farm_id: crypto.randomUUID(), farmer_uid: user.id, farm_name: 'Shanti Poultry Farm', location: { district: 'Nadia', state: 'West Bengal' }, livestock_type: 'poultry', herd_size: 500, biosecurity_level: 'medium', created_at: now, updated_at: now };
+    const f = { farm_id: crypto.randomUUID(), farmer_uid: user.id, farm_name: 'Shanti Poultry Farm', district: 'Nadia', state: 'West Bengal', livestock_type: 'poultry', herd_size: 500, biosecurity_level: 'medium', created_at: now } as any;
     await supabase.from('farms').insert(f as any);
     farmId = f.farm_id;
   }
