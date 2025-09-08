@@ -163,13 +163,20 @@ export async function listMyFarms() {
 
 function riskLevelFromScore(score: number) { if (score <= 40) return 'low'; if (score <= 70) return 'medium'; return 'high'; }
 
-export async function submitRiskAssessment(input: { farm_id: string; score: number; assessment_details?: any; answers?: any }) {
+export async function submitRiskAssessment(input: { farm_id: string | number; score: number; assessment_details?: any; answers?: any }) {
   const assessment_id = crypto.randomUUID();
   const date = new Date().toISOString();
   const answers = input.answers ?? input.assessment_details ?? {};
-  const body = { assessment_id, farm_id: input.farm_id, date, score: input.score, risk_level: riskLevelFromScore(input.score), answers };
+  const body: any = { assessment_id, farm_id: input.farm_id, date, score: input.score, risk_level: riskLevelFromScore(input.score), answers };
   const { error } = await supabase.from('risk_assessments').insert(body as any);
-  if (error) throw error;
+  if (error) {
+    const caps = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+    const { data: authData } = await supabase.auth.getUser();
+    const alt = { farm_id: Number(input.farm_id), farmer_id: authData.user?.id, risk_score: input.score, risk_level: caps(riskLevelFromScore(input.score)) } as any;
+    const { error: err2 } = await supabase.from('risk_assessments').insert(alt);
+    if (err2) throw err2;
+    return alt as any;
+  }
   return body as any;
 }
 
