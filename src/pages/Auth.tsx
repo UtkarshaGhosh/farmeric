@@ -19,6 +19,7 @@ export default function Auth() {
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState<'farmer' | 'vet'>('farmer');
       
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -115,7 +116,7 @@ export default function Auth() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="password2">Password</Label>
-                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
+                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="•���••••" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="confirm">Confirm Password</Label>
