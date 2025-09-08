@@ -93,21 +93,25 @@ export async function upsertUserProfile(profile: { name: string; location?: { di
   const user = authData.user;
   if (!user) throw new Error('Not authenticated');
   const now = new Date().toISOString();
+  const { data: existing } = await supabase.from('users').select('*').eq('uid', user.id).maybeSingle();
+  const normalizedPhone = (profile.phone || (existing as any)?.phone || '').replace(/[^0-9]+/g, '');
+  if (!normalizedPhone) throw new Error('Phone number is required');
+  const { data: existingByPhone } = await supabase.from('users').select('uid').eq('phone', normalizedPhone).maybeSingle();
+  if (existingByPhone && existingByPhone.uid !== user.id) {
+    throw new Error('This phone number is already registered to another account.');
+  }
   const payload: any = {
     uid: user.id,
     email: user.email || '',
     name: profile.name,
-    phone: profile.phone ?? (user as any).phone ?? null,
-    // role preserved unless provided explicitly
-    language_preference: profile.language_preference ?? 'en',
-    created_at: now,
+    phone: normalizedPhone,
+    role: profile.role ?? (existing as any)?.role ?? 'farmer',
+    language: profile.language_preference ?? (existing as any)?.language ?? 'en',
+    created_at: (existing as any)?.created_at ?? now,
   };
-  // Determine if exists
-  const { data: existing } = await supabase.from('users').select('*').eq('uid', user.id).maybeSingle();
-  if (profile.role) payload.role = profile.role; if (!existing) payload.created_at = now;
   const { error } = await supabase.from('users').upsert(payload, { onConflict: 'uid' });
   if (error) throw error;
-  return { ...existing, ...payload };
+  return { ...(existing as any), ...payload };
 }
 
 export async function createFarm(input: any) {
