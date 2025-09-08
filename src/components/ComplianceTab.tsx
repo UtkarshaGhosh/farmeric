@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { listMyFarms, listComplianceRecordsByFarm, uploadComplianceDocument } from "@/integrations/firebase/api";
+import { listMyFarms, listComplianceRecordsByFarm, uploadComplianceDocument } from "@/integrations/supabase/api";
 import { Button } from "@/components/ui/button";
 import { ComplianceTracker } from "./ComplianceTracker";
 

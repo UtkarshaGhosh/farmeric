@@ -5,7 +5,7 @@ import { DashboardTab } from "@/components/DashboardTab";
 import { TrainingTab } from "@/components/TrainingTab";
 import { ComplianceTab } from "@/components/ComplianceTab";
 import { AlertsTab } from "@/components/AlertsTab";
-import { getUserProfile, listMyFarms, listFarmAssessments } from "@/integrations/firebase/api";
+import { getUserProfile, listMyFarms, listFarmAssessments } from "@/integrations/supabase/api";
 import { useNavigate } from "react-router-dom";
 
 interface FarmInfo { id: string; name: string; livestock_type?: "pig" | "poultry"; }
@@ -23,7 +23,7 @@ const Index = () => {
     (async () => {
       try {
         const profile = await getUserProfile();
-        if (!profile || !profile.name || !profile.language_preference || !profile.location?.district) {
+        if (!profile || !profile.name || !profile.language_preference) {
           navigate("/onboarding", { replace: true });
           return;
         }

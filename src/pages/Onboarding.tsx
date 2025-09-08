@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { upsertUserProfile } from "@/integrations/firebase/api";
+import { upsertUserProfile } from "@/integrations/supabase/api";
 import { useNavigate } from "react-router-dom";
 
 export default function Onboarding() {

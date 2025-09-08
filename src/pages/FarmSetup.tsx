@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { createFarm, listMyFarms } from "@/integrations/firebase/api";
+import { createFarm, listMyFarms } from "@/integrations/supabase/api";
 import { useNavigate } from "react-router-dom";
 
 export default function FarmSetup() {

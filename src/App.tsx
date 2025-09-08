@@ -12,7 +12,7 @@ import FarmSetup from "./pages/FarmSetup";
 import AdminSeed from "./pages/AdminSeed";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { getSession, onAuthStateChange } from "@/integrations/firebase/api";
+import { getSession, onAuthStateChange } from "@/integrations/supabase/api";
 
 const queryClient = new QueryClient();
 
