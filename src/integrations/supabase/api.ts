@@ -10,7 +10,7 @@ export async function signInWithPassword(email: string, password: string) {
   return data as any;
 }
 
-export async function signUpWithPassword(email: string, password: string, name?: string) {
+export async function signUpWithPassword(email: string, password: string, name?: string, role: 'farmer' | 'vet' = 'farmer', phone?: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -24,13 +24,19 @@ export async function signUpWithPassword(email: string, password: string, name?:
     const uid = data.session?.user?.id;
     const now = new Date().toISOString();
     if (uid) {
+      const normalizedPhone = (phone || '').replace(/[^0-9]+/g, '');
+      if (!normalizedPhone) throw new Error('Phone number is required');
+      const { data: existingByPhone } = await supabase.from('users').select('uid').eq('phone', normalizedPhone).maybeSingle();
+      if (existingByPhone && existingByPhone.uid !== uid) {
+        throw new Error('This phone number is already registered. Please sign in instead.');
+      }
       await supabase.from('users').upsert({
         uid,
         email,
         name: name || (data.session?.user?.user_metadata as any)?.name || "",
-        phone: (data.session?.user as any)?.phone ?? null,
-        role: 'farmer',
-        language_preference: 'en',
+        phone: normalizedPhone,
+        role,
+        language: 'en',
         created_at: now,
       } as any, { onConflict: 'uid' });
     }
@@ -76,30 +82,36 @@ export async function getUserProfile() {
   if (!user) return null;
   const { data, error } = await supabase.from('users').select('*').eq('uid', user.id).single();
   if (error) return null;
-  return data as any;
+  const row: any = data || {};
+  if (row.language && !row.language_preference) row.language_preference = row.language;
+  return row as any;
 }
 
-export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language_preference?: string; phone?: string }) {
+export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language_preference?: string; phone?: string; role?: 'farmer' | 'vet' }) {
   const { data: authData, error: authErr } = await supabase.auth.getUser();
   if (authErr) throw authErr;
   const user = authData.user;
   if (!user) throw new Error('Not authenticated');
   const now = new Date().toISOString();
+  const { data: existing } = await supabase.from('users').select('*').eq('uid', user.id).maybeSingle();
+  const normalizedPhone = (profile.phone || (existing as any)?.phone || '').replace(/[^0-9]+/g, '');
+  if (!normalizedPhone) throw new Error('Phone number is required');
+  const { data: existingByPhone } = await supabase.from('users').select('uid').eq('phone', normalizedPhone).maybeSingle();
+  if (existingByPhone && existingByPhone.uid !== user.id) {
+    throw new Error('This phone number is already registered to another account.');
+  }
   const payload: any = {
     uid: user.id,
     email: user.email || '',
     name: profile.name,
-    phone: profile.phone ?? (user as any).phone ?? null,
-    role: 'farmer',
-    language_preference: profile.language_preference ?? 'en',
-    created_at: now,
+    phone: normalizedPhone,
+    role: profile.role ?? (existing as any)?.role ?? 'farmer',
+    language: profile.language_preference ?? (existing as any)?.language ?? 'en',
+    created_at: (existing as any)?.created_at ?? now,
   };
-  // Determine if exists
-  const { data: existing } = await supabase.from('users').select('uid').eq('uid', user.id).maybeSingle();
-  if (!existing) payload.created_at = now;
   const { error } = await supabase.from('users').upsert(payload, { onConflict: 'uid' });
   if (error) throw error;
-  return payload;
+  return { ...(existing as any), ...payload };
 }
 
 export async function createFarm(input: any) {
@@ -122,7 +134,12 @@ export async function createFarm(input: any) {
     created_at: now,
   } as any;
   const { error } = await supabase.from('farms').insert(farmDoc as any);
-  if (error) throw error;
+  if (error) {
+    const location = [input.location?.district, input.location?.state].filter(Boolean).join(', ');
+    const { error: err2, data: ins } = await supabase.from('farms').insert({ farmer_id: user.id, location, farm_type: input.livestock_type, herd_size: input.herd_size ?? 0 } as any).select('id').single();
+    if (err2) throw err2;
+    return { id: ins?.id, name: input.farm_name || input.name, livestock_type: input.livestock_type, herd_size: input.herd_size ?? 0 } as any;
+  }
   return farmDoc as any;
 }
 
@@ -130,27 +147,45 @@ export async function listMyFarms() {
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
   if (!user) return [];
-  const { data, error } = await supabase.from('farms').select('*').eq('farmer_uid', user.id);
-  if (error) return [];
+  let { data, error } = await supabase.from('farms').select('*').eq('farmer_uid', user.id);
+  if (error) {
+    const alt = await supabase.from('farms').select('*').eq('farmer_id', user.id);
+    data = alt.data as any;
+  }
   const rows = (data || []) as any[];
-  return rows.map((r) => ({ ...r, id: r.farm_id, name: r.farm_name }));
+  return rows.map((r) => ({
+    ...r,
+    id: r.farm_id ?? r.id,
+    name: r.farm_name ?? r.location ?? 'Farm',
+    livestock_type: r.livestock_type ?? r.farm_type,
+  }));
 }
 
 function riskLevelFromScore(score: number) { if (score <= 40) return 'low'; if (score <= 70) return 'medium'; return 'high'; }
 
-export async function submitRiskAssessment(input: { farm_id: string; score: number; assessment_details?: any; answers?: any }) {
+export async function submitRiskAssessment(input: { farm_id: string | number; score: number; assessment_details?: any; answers?: any }) {
   const assessment_id = crypto.randomUUID();
   const date = new Date().toISOString();
   const answers = input.answers ?? input.assessment_details ?? {};
-  const body = { assessment_id, farm_id: input.farm_id, date, score: input.score, risk_level: riskLevelFromScore(input.score), answers };
+  const body: any = { assessment_id, farm_id: input.farm_id, date, score: input.score, risk_level: riskLevelFromScore(input.score), answers };
   const { error } = await supabase.from('risk_assessments').insert(body as any);
-  if (error) throw error;
+  if (error) {
+    const caps = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+    const { data: authData } = await supabase.auth.getUser();
+    const alt = { farm_id: Number(input.farm_id), farmer_id: authData.user?.id, risk_score: input.score, risk_level: caps(riskLevelFromScore(input.score)) } as any;
+    const { error: err2 } = await supabase.from('risk_assessments').insert(alt);
+    if (err2) throw err2;
+    return alt as any;
+  }
   return body as any;
 }
 
-export async function listFarmAssessments(farmId: string) {
-  const { data, error } = await supabase.from('risk_assessments').select('*').eq('farm_id', farmId).order('date', { ascending: false });
-  if (error) return [];
+export async function listFarmAssessments(farmId: string | number) {
+  let { data, error } = await supabase.from('risk_assessments').select('*').eq('farm_id', farmId).order('date', { ascending: false });
+  if (error) {
+    const alt = await supabase.from('risk_assessments').select('*').eq('farm_id', farmId).order('submitted_at', { ascending: false });
+    data = alt.data as any;
+  }
   return (data || []) as any[];
 }
 
@@ -168,7 +203,7 @@ export async function upsertTrainingModule(module: any) {
   return body as any;
 }
 
-export async function uploadComplianceDocument(farmId: string, file: File, document_type: string) {
+export async function uploadComplianceDocument(farmId: string | number, file: File, document_type: string) {
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
   if (!user) throw new Error('Not authenticated');
@@ -188,7 +223,16 @@ export async function uploadComplianceDocument(farmId: string, file: File, docum
     submission_date,
     status: 'pending',
   } as any);
-  if (error) throw error;
+  if (error) {
+    const { error: err2 } = await supabase.from('compliance_docs').insert({
+      farm_id: Number(farmId),
+      farmer_id: user.id,
+      doc_url: url,
+      status: 'pending',
+      reviewed_by: null,
+    } as any);
+    if (err2) throw err2;
+  }
   return { record_id, file_url: url } as any;
 }
 
@@ -198,15 +242,27 @@ export async function getComplianceFileUrl(path: string, expiresInSeconds = 3600
   return data.signedUrl;
 }
 
-export async function listComplianceRecordsByFarm(farmId: string) {
-  const { data, error } = await supabase.from('compliance_records').select('*').eq('farm_id', farmId).order('submission_date', { ascending: false });
-  if (error) return [];
+export async function listComplianceRecordsByFarm(farmId: string | number) {
+  let { data, error } = await supabase.from('compliance_records').select('*').eq('farm_id', farmId).order('submission_date', { ascending: false });
+  if (error) {
+    const alt = await supabase.from('compliance_docs').select('*').eq('farm_id', farmId).order('uploaded_at', { ascending: false });
+    data = (alt.data || []).map((r: any) => ({
+      ...r,
+      record_id: r.id,
+      document_type: 'Document',
+      file_url: r.doc_url,
+      submission_date: r.uploaded_at,
+    }));
+  }
   return (data || []) as any[];
 }
 
-export async function setComplianceStatus(recordId: string, status: any) {
+export async function setComplianceStatus(recordId: string | number, status: any) {
   const { error } = await supabase.from('compliance_records').update({ status }).eq('record_id', recordId);
-  if (error) throw error;
+  if (error) {
+    const { error: err2 } = await supabase.from('compliance_docs').update({ status }).eq('id', recordId);
+    if (err2) throw err2;
+  }
   return { id: recordId, status } as any;
 }
 
@@ -224,13 +280,49 @@ export async function createAlert(alert: any) {
   const issued_date = new Date().toISOString();
   const body = { alert_id, issued_date, ...alert };
   const { error } = await supabase.from('alerts').insert(body as any);
-  if (error) throw error;
+  if (error) {
+    const { error: err2 } = await supabase.from('outbreak_reports').insert({
+      disease_name: alert.disease_name,
+      severity: (alert.severity || 'medium').toString().replace(/^./, (c: string) => c.toUpperCase()),
+      location: [alert.district, alert.state].filter(Boolean).join(', '),
+      reported_by: (await supabase.auth.getUser()).data.user?.id,
+    } as any);
+    if (err2) throw err2;
+    return { ...alert } as any;
+  }
   return body as any;
 }
 
 export async function getFarmerSummary() { return { totalFarms: 0, averageRiskScore: 0, complianceProgress: '0/0' }; }
 export async function getRegulatorSummary() { return { farmersOnboarded: 0, highRiskFarms: 0, pendingCompliance: 0 }; }
 export async function savePushToken(_token: string, _platform?: string) { return { ok: true } as any; }
+
+export async function listAllFarms() {
+  const { data, error } = await supabase.from('farms').select('*');
+  if (error) return [];
+  const rows = (data || []) as any[];
+  return rows.map((r) => ({
+    ...r,
+    id: r.farm_id ?? r.id,
+    name: r.farm_name ?? r.location ?? 'Farm',
+    livestock_type: r.livestock_type ?? r.farm_type,
+  }));
+}
+
+export async function listPendingCompliance() {
+  let { data, error } = await supabase.from('compliance_records').select('*').eq('status', 'pending').order('submission_date', { ascending: false });
+  if (error) {
+    const alt = await supabase.from('compliance_docs').select('*').eq('status', 'pending').order('uploaded_at', { ascending: false });
+    data = (alt.data || []).map((r: any) => ({
+      ...r,
+      record_id: r.id,
+      document_type: 'Document',
+      file_url: r.doc_url,
+      submission_date: r.uploaded_at,
+    }));
+  }
+  return (data || []) as any[];
+}
 
 // Seed helpers for demo
 export async function seedDemoData() {

@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { signInWithPassword, signUpWithPassword, signInWithGoogle } from "@/integrations/supabase/api";
@@ -17,8 +18,10 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState<'farmer' | 'vet'>('farmer');
       
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -53,15 +56,23 @@ export default function Auth() {
       toast({ title: "Passwords do not match" });
       return;
     }
+    const normalizedPhone = phone.replace(/[^0-9]+/g, "");
+    if (!normalizedPhone || normalizedPhone.length < 8) {
+      toast({ title: "Invalid phone", description: "Enter a valid phone number" });
+      return;
+    }
     setLoading(true);
     try {
-      const { session } = await signUpWithPassword(email, password, name);
+      const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
       toast({ title: session ? "Account created" : "Check your email to confirm" });
       navigate("/");
     } catch (err: any) {
       const message = err?.message || String(err);
       const lower = (message || "").toLowerCase();
-      if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
+      if (lower.includes("already") && ((lower.includes("registered") || lower.includes("exists") || lower.includes("exist")) && lower.includes("phone"))) {
+        toast({ title: "Phone already registered", description: "Use a different phone or sign in.", variant: "destructive" });
+        setTab("login");
+      } else if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
         toast({ title: "Email already registered", description: "Please sign in with this email.", variant: "destructive" });
         setTab("login");
       } else {
@@ -114,12 +125,29 @@ export default function Auth() {
                   <Input id="email2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
                 </div>
                 <div className="space-y-1">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="e.g., 9876543210" />
+                </div>
+                <div className="space-y-1">
                   <Label htmlFor="password2">Password</Label>
                   <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="confirm">Confirm Password</Label>
                   <Input id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required placeholder="••••••" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <RadioGroup value={role} onValueChange={(v) => setRole(v as any)} className="flex gap-6">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem id="role-farmer" value="farmer" />
+                      <Label htmlFor="role-farmer">Farmer</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem id="role-vet" value="vet" />
+                      <Label htmlFor="role-vet">Vet</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password || !confirm}>Create Account</Button>
               </form>

@@ -16,6 +16,7 @@ export default function Onboarding() {
   const [village, setVillage] = useState("");
   const [stateName, setStateName] = useState("");
   const [language, setLanguage] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
@@ -24,9 +25,14 @@ export default function Onboarding() {
       toast({ title: "Fill required fields", description: "Name, district and language are required" });
       return;
     }
+    const normalizedPhone = phone.replace(/[^0-9]+/g, "");
+    if (!normalizedPhone || normalizedPhone.length < 8) {
+      toast({ title: "Invalid phone", description: "Enter a valid phone number" });
+      return;
+    }
     setLoading(true);
     try {
-      await upsertUserProfile({ name, location: { district, village, state: stateName }, language_preference: language });
+      await upsertUserProfile({ name, location: { district, village, state: stateName }, language_preference: language, phone: normalizedPhone });
       toast({ title: "Profile saved" });
       navigate("/farm-setup");
     } catch (e: any) {
@@ -79,7 +85,11 @@ export default function Onboarding() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full" type="submit" disabled={loading || !name || !district || !language}>Continue</Button>
+            <div className="space-y-1">
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="e.g., 9876543210" />
+            </div>
+            <Button className="w-full" type="submit" disabled={loading || !name || !district || !language || !phone}>Continue</Button>
           </form>
         </CardContent>
       </Card>
