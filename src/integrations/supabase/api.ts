@@ -180,9 +180,12 @@ export async function submitRiskAssessment(input: { farm_id: string | number; sc
   return body as any;
 }
 
-export async function listFarmAssessments(farmId: string) {
-  const { data, error } = await supabase.from('risk_assessments').select('*').eq('farm_id', farmId).order('date', { ascending: false });
-  if (error) return [];
+export async function listFarmAssessments(farmId: string | number) {
+  let { data, error } = await supabase.from('risk_assessments').select('*').eq('farm_id', farmId).order('date', { ascending: false });
+  if (error) {
+    const alt = await supabase.from('risk_assessments').select('*').eq('farm_id', farmId).order('submitted_at', { ascending: false });
+    data = alt.data as any;
+  }
   return (data || []) as any[];
 }
 
