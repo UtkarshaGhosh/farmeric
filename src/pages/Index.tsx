@@ -24,7 +24,7 @@ const Index = () => {
       try {
         const profile = await getUserProfile();
         if (profile?.role === 'vet') { navigate('/vet', { replace: true }); return; }
-        if (!profile || !profile.name || !profile.language_preference) {
+        if (!profile || !profile.name || !(profile.language_preference || (profile as any).language)) {
           navigate("/onboarding", { replace: true });
           return;
         }
