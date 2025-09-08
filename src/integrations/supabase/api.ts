@@ -242,9 +242,18 @@ export async function getComplianceFileUrl(path: string, expiresInSeconds = 3600
   return data.signedUrl;
 }
 
-export async function listComplianceRecordsByFarm(farmId: string) {
-  const { data, error } = await supabase.from('compliance_records').select('*').eq('farm_id', farmId).order('submission_date', { ascending: false });
-  if (error) return [];
+export async function listComplianceRecordsByFarm(farmId: string | number) {
+  let { data, error } = await supabase.from('compliance_records').select('*').eq('farm_id', farmId).order('submission_date', { ascending: false });
+  if (error) {
+    const alt = await supabase.from('compliance_docs').select('*').eq('farm_id', farmId).order('uploaded_at', { ascending: false });
+    data = (alt.data || []).map((r: any) => ({
+      ...r,
+      record_id: r.id,
+      document_type: 'Document',
+      file_url: r.doc_url,
+      submission_date: r.uploaded_at,
+    }));
+  }
   return (data || []) as any[];
 }
 
