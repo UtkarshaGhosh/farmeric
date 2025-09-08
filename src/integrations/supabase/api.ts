@@ -246,7 +246,7 @@ export async function seedDemoData() {
   const tm3 = { module_id: 'mod-disease-prevention-quiz', title: 'Disease Prevention Quiz', description: 'Test your knowledge on prevention.', type: 'quiz', link: '#', livestock_type: 'both', language: 'en' };
   await supabase.from('training_modules').upsert([tm1, tm2, tm3] as any, { onConflict: 'module_id' });
 
-  const a1 = { alert_id: 'alert-ai-nadia', disease_name: 'Avian Influenza', description: 'Outbreak reported in Nadia district.', location: { district: 'Nadia', state: 'West Bengal' }, severity: 'high', issued_by: 'govt', issued_date: now };
+  const a1 = { alert_id: 'alert-ai-nadia', disease_name: 'Avian Influenza', description: 'Outbreak reported in Nadia district.', district: 'Nadia', state: 'West Bengal', severity: 'high', issued_by: 'govt', issued_date: now };
   const a2 = { alert_id: 'alert-asf-north', disease_name: 'African Swine Fever', description: 'ASF reported in nearby district.', location: { district: 'North 24 Parganas', state: 'West Bengal' }, severity: 'medium', issued_by: 'govt', issued_date: now };
   await supabase.from('alerts').upsert([a1, a2] as any, { onConflict: 'alert_id' });
 
