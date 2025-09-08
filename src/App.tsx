@@ -10,6 +10,7 @@ import Logout from "./pages/Logout";
 import Onboarding from "./pages/Onboarding";
 import FarmSetup from "./pages/FarmSetup";
 import AdminSeed from "./pages/AdminSeed";
+import Vet from "./pages/Vet";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { getSession, onAuthStateChange } from "@/integrations/supabase/api";
