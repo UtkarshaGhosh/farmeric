@@ -82,7 +82,9 @@ export async function getUserProfile() {
   if (!user) return null;
   const { data, error } = await supabase.from('users').select('*').eq('uid', user.id).single();
   if (error) return null;
-  return data as any;
+  const row: any = data || {};
+  if (row.language && !row.language_preference) row.language_preference = row.language;
+  return row as any;
 }
 
 export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language_preference?: string; phone?: string; role?: 'farmer' | 'vet' }) {
