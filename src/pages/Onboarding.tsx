@@ -25,9 +25,14 @@ export default function Onboarding() {
       toast({ title: "Fill required fields", description: "Name, district and language are required" });
       return;
     }
+    const normalizedPhone = phone.replace(/[^0-9]+/g, "");
+    if (!normalizedPhone || normalizedPhone.length < 8) {
+      toast({ title: "Invalid phone", description: "Enter a valid phone number" });
+      return;
+    }
     setLoading(true);
     try {
-      await upsertUserProfile({ name, location: { district, village, state: stateName }, language_preference: language });
+      await upsertUserProfile({ name, location: { district, village, state: stateName }, language_preference: language, phone: normalizedPhone });
       toast({ title: "Profile saved" });
       navigate("/farm-setup");
     } catch (e: any) {
