@@ -236,7 +236,16 @@ export async function createAlert(alert: any) {
   const issued_date = new Date().toISOString();
   const body = { alert_id, issued_date, ...alert };
   const { error } = await supabase.from('alerts').insert(body as any);
-  if (error) throw error;
+  if (error) {
+    const { error: err2 } = await supabase.from('outbreak_reports').insert({
+      disease_name: alert.disease_name,
+      severity: (alert.severity || 'medium').toString().replace(/^./, (c: string) => c.toUpperCase()),
+      location: [alert.district, alert.state].filter(Boolean).join(', '),
+      reported_by: (await supabase.auth.getUser()).data.user?.id,
+    } as any);
+    if (err2) throw err2;
+    return { ...alert } as any;
+  }
   return body as any;
 }
 
