@@ -99,7 +99,7 @@ export async function upsertUserProfile(profile: { name: string; location?: { di
   if (profile.role) payload.role = profile.role; if (!existing) payload.created_at = now;
   const { error } = await supabase.from('users').upsert(payload, { onConflict: 'uid' });
   if (error) throw error;
-  return payload;
+  return { ...existing, ...payload };
 }
 
 export async function createFarm(input: any) {
