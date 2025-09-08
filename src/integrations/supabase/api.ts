@@ -27,14 +27,12 @@ export async function signUpWithPassword(email: string, password: string, name?:
       await supabase.from('users').upsert({
         uid,
         email,
-        name: name || data.user?.user_metadata?.name || "",
-        phone: data.user?.phone ?? null,
+        name: name || (data.user?.user_metadata as any)?.name || "",
+        phone: (data.user as any)?.phone ?? null,
         role: 'farmer',
-        language_preference: null,
-        location: null,
+        language_preference: 'en',
         created_at: now,
-        updated_at: now,
-      }, { onConflict: 'uid' });
+      } as any, { onConflict: 'uid' });
     }
   } catch {}
   return data as any;
