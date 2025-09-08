@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listAlertsByLocation } from "@/integrations/firebase/api";
+import { listAlertsByLocation } from "@/integrations/supabase/api";
 import { DiseaseAlert } from "./DiseaseAlert";
 
 const mockAlerts = [
