@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Menu, Globe, Bell, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { signOut } from "@/integrations/firebase/api";
+import { signOut } from "@/integrations/supabase/api";
 
 interface FarmHeaderProps {
   farmerName: string;
