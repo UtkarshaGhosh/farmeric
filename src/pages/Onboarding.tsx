@@ -85,7 +85,11 @@ export default function Onboarding() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full" type="submit" disabled={loading || !name || !district || !language}>Continue</Button>
+            <div className="space-y-1">
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="e.g., 9876543210" />
+            </div>
+            <Button className="w-full" type="submit" disabled={loading || !name || !district || !language || !phone}>Continue</Button>
           </form>
         </CardContent>
       </Card>
