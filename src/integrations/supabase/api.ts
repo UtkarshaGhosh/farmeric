@@ -257,9 +257,12 @@ export async function listComplianceRecordsByFarm(farmId: string | number) {
   return (data || []) as any[];
 }
 
-export async function setComplianceStatus(recordId: string, status: any) {
+export async function setComplianceStatus(recordId: string | number, status: any) {
   const { error } = await supabase.from('compliance_records').update({ status }).eq('record_id', recordId);
-  if (error) throw error;
+  if (error) {
+    const { error: err2 } = await supabase.from('compliance_docs').update({ status }).eq('id', recordId);
+    if (err2) throw err2;
+  }
   return { id: recordId, status } as any;
 }
 
