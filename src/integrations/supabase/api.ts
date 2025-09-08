@@ -147,10 +147,18 @@ export async function listMyFarms() {
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
   if (!user) return [];
-  const { data, error } = await supabase.from('farms').select('*').eq('farmer_uid', user.id);
-  if (error) return [];
+  let { data, error } = await supabase.from('farms').select('*').eq('farmer_uid', user.id);
+  if (error) {
+    const alt = await supabase.from('farms').select('*').eq('farmer_id', user.id);
+    data = alt.data as any;
+  }
   const rows = (data || []) as any[];
-  return rows.map((r) => ({ ...r, id: r.farm_id, name: r.farm_name }));
+  return rows.map((r) => ({
+    ...r,
+    id: r.farm_id ?? r.id,
+    name: r.farm_name ?? r.location ?? 'Farm',
+    livestock_type: r.livestock_type ?? r.farm_type,
+  }));
 }
 
 function riskLevelFromScore(score: number) { if (score <= 40) return 'low'; if (score <= 70) return 'medium'; return 'high'; }
