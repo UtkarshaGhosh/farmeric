@@ -310,8 +310,17 @@ export async function listAllFarms() {
 }
 
 export async function listPendingCompliance() {
-  const { data, error } = await supabase.from('compliance_records').select('*').eq('status', 'pending').order('submission_date', { ascending: false });
-  if (error) return [];
+  let { data, error } = await supabase.from('compliance_records').select('*').eq('status', 'pending').order('submission_date', { ascending: false });
+  if (error) {
+    const alt = await supabase.from('compliance_docs').select('*').eq('status', 'pending').order('uploaded_at', { ascending: false });
+    data = (alt.data || []).map((r: any) => ({
+      ...r,
+      record_id: r.id,
+      document_type: 'Document',
+      file_url: r.doc_url,
+      submission_date: r.uploaded_at,
+    }));
+  }
   return (data || []) as any[];
 }
 
