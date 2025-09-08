@@ -53,6 +53,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
           <Route path="/farm-setup" element={<RequireAuth><FarmSetup /></RequireAuth>} />
+          <Route path="/vet" element={<RequireAuth><Vet /></RequireAuth>} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/admin/seed" element={<RequireAuth><AdminSeed /></RequireAuth>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
