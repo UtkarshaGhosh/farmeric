@@ -79,7 +79,7 @@ export async function getUserProfile() {
   return data as any;
 }
 
-export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language_preference?: string; phone?: string }) {
+export async function upsertUserProfile(profile: { name: string; location?: { district?: string; village?: string; state?: string }; language_preference?: string; phone?: string; role?: 'farmer' | 'vet' }) {
   const { data: authData, error: authErr } = await supabase.auth.getUser();
   if (authErr) throw authErr;
   const user = authData.user;
