@@ -29,7 +29,7 @@ export async function signUpWithPassword(email: string, password: string, name?:
         email,
         name: name || (data.session?.user?.user_metadata as any)?.name || "",
         phone: (data.session?.user as any)?.phone ?? null,
-        role: 'farmer',
+        role,
         language_preference: 'en',
         created_at: now,
       } as any, { onConflict: 'uid' });
