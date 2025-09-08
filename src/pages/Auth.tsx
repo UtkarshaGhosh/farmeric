@@ -56,15 +56,23 @@ export default function Auth() {
       toast({ title: "Passwords do not match" });
       return;
     }
+    const normalizedPhone = phone.replace(/[^0-9]+/g, "");
+    if (!normalizedPhone || normalizedPhone.length < 8) {
+      toast({ title: "Invalid phone", description: "Enter a valid phone number" });
+      return;
+    }
     setLoading(true);
     try {
-      const { session } = await signUpWithPassword(email, password, name, role);
+      const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
       toast({ title: session ? "Account created" : "Check your email to confirm" });
       navigate("/");
     } catch (err: any) {
       const message = err?.message || String(err);
       const lower = (message || "").toLowerCase();
-      if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
+      if (lower.includes("already") && ((lower.includes("registered") || lower.includes("exists") || lower.includes("exist")) && lower.includes("phone"))) {
+        toast({ title: "Phone already registered", description: "Use a different phone or sign in.", variant: "destructive" });
+        setTab("login");
+      } else if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
         toast({ title: "Email already registered", description: "Please sign in with this email.", variant: "destructive" });
         setTab("login");
       } else {
