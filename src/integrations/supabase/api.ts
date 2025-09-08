@@ -95,7 +95,7 @@ export async function upsertUserProfile(profile: { name: string; location?: { di
     created_at: now,
   };
   // Determine if exists
-  const { data: existing } = await supabase.from('users').select('uid').eq('uid', user.id).maybeSingle();
+  const { data: existing } = await supabase.from('users').select('*').eq('uid', user.id).maybeSingle();
   if (!existing) payload.created_at = now;
   const { error } = await supabase.from('users').upsert(payload, { onConflict: 'uid' });
   if (error) throw error;
