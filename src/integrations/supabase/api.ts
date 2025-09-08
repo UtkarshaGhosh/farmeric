@@ -89,11 +89,10 @@ export async function upsertUserProfile(profile: { name: string; location?: { di
     uid: user.id,
     email: user.email || '',
     name: profile.name,
-    phone: profile.phone ?? (user.phone as any) ?? null,
+    phone: profile.phone ?? (user as any).phone ?? null,
     role: 'farmer',
-    language_preference: profile.language_preference ?? null,
-    location: profile.location ?? null,
-    updated_at: now,
+    language_preference: profile.language_preference ?? 'en',
+    created_at: now,
   };
   // Determine if exists
   const { data: existing } = await supabase.from('users').select('uid').eq('uid', user.id).maybeSingle();
