@@ -35,7 +35,7 @@ export const AlertsTab = () => {
           id: r.alert_id || r.id,
           diseaseName: r.disease_name,
           description: r.description || "",
-          location: r.location ? `${r.location.district}${r.location.state ? ", " + r.location.state : ""}` : "",
+          location: `${r.district ?? ''}${r.state ? ", " + r.state : ""}`,
           distance: "",
           severity: r.severity as 'low' | 'medium' | 'high',
           issuedDate: r.issued_date ? new Date(r.issued_date).toISOString().slice(0,10) : "",
