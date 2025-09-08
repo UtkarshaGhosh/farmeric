@@ -21,14 +21,14 @@ export async function signUpWithPassword(email: string, password: string, name?:
   });
   if (error) throw error;
   try {
-    const uid = data.user?.id;
+    const uid = data.session?.user?.id;
     const now = new Date().toISOString();
     if (uid) {
       await supabase.from('users').upsert({
         uid,
         email,
-        name: name || (data.user?.user_metadata as any)?.name || "",
-        phone: (data.user as any)?.phone ?? null,
+        name: name || (data.session?.user?.user_metadata as any)?.name || "",
+        phone: (data.session?.user as any)?.phone ?? null,
         role: 'farmer',
         language_preference: 'en',
         created_at: now,
