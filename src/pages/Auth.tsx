@@ -56,7 +56,7 @@ export default function Auth() {
     }
     setLoading(true);
     try {
-      const { session } = await signUpWithPassword(email, password, name);
+      const { session } = await signUpWithPassword(email, password, name, role);
       toast({ title: session ? "Account created" : "Check your email to confirm" });
       navigate("/");
     } catch (err: any) {
@@ -116,7 +116,7 @@ export default function Auth() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="password2">Password</Label>
-                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="•���••••" />
+                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="confirm">Confirm Password</Label>
