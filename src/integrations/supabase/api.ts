@@ -24,13 +24,19 @@ export async function signUpWithPassword(email: string, password: string, name?:
     const uid = data.session?.user?.id;
     const now = new Date().toISOString();
     if (uid) {
+      const normalizedPhone = (phone || '').replace(/[^0-9]+/g, '');
+      if (!normalizedPhone) throw new Error('Phone number is required');
+      const { data: existingByPhone } = await supabase.from('users').select('uid').eq('phone', normalizedPhone).maybeSingle();
+      if (existingByPhone && existingByPhone.uid !== uid) {
+        throw new Error('This phone number is already registered. Please sign in instead.');
+      }
       await supabase.from('users').upsert({
         uid,
         email,
         name: name || (data.session?.user?.user_metadata as any)?.name || "",
-        phone: (data.session?.user as any)?.phone ?? null,
+        phone: normalizedPhone,
         role,
-        language_preference: 'en',
+        language: 'en',
         created_at: now,
       } as any, { onConflict: 'uid' });
     }
