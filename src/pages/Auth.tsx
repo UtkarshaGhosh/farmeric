@@ -114,7 +114,7 @@ export default function Auth() {
         return;
       }
       try {
-        await signInWithPassword(email, password);
+        await signInWithPassword(emailNorm, password);
         toast({ title: "Signed in" });
         navigate(role === 'vet' ? "/vet" : "/");
       } catch (e: any) {
@@ -205,7 +205,7 @@ export default function Auth() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="password2">Password</Label>
-                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
+                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••���•" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="confirm">Confirm Password</Label>
