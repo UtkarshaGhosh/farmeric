@@ -66,7 +66,7 @@ export default function Auth() {
     try {
       const exists = await (await import("@/integrations/supabase/api")).emailInUse(email);
       if (exists) {
-        toast({ title: "Email already exists with another account", variant: "destructive" });
+        toast({ title: "acc cannot be created as ir exists", description: "Use Sign In instead.", variant: "destructive" });
         setTab("login");
         return;
       }
