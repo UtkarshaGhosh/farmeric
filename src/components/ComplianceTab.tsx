@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { listMyFarms, listComplianceRecordsByFarm, uploadComplianceDocument } from "@/integrations/supabase/api";
 import { Button } from "@/components/ui/button";
 import { ComplianceTracker } from "./ComplianceTracker";
+import { useI18n } from "@/lib/i18n";
 
 const mockCompliance = [
   {
@@ -79,11 +80,12 @@ export const ComplianceTab = () => {
     }
   }
 
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-warning/10 to-warning/20 p-4 rounded-xl border border-warning/20">
-        <h2 className="text-lg font-semibold text-warning mb-2">Compliance Status</h2>
-        <p className="text-sm text-muted-foreground">{records.filter(r => r.status === 'pending').length} documents pending review</p>
+        <h2 className="text-lg font-semibold text-warning mb-2">{t("compliance.status","Compliance Status")}</h2>
+        <p className="text-sm text-muted-foreground">{records.filter(r => r.status === 'pending').length} {t("compliance.pendingReview","documents pending review")}</p>
       </div>
 
       <ComplianceTracker
@@ -94,7 +96,7 @@ export const ComplianceTab = () => {
       <div className="pt-2">
         <input ref={fileRef} type="file" className="hidden" onChange={e => e.target.files && onUpload(e.target.files[0])} />
         <Button className="w-full" variant="outline" onClick={() => fileRef.current?.click()} disabled={!farmId || uploading}>
-          Upload New Document
+          {t("compliance.uploadNew","Upload New Document")}
         </Button>
       </div>
     </div>
