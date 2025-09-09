@@ -171,8 +171,8 @@ export default function Auth() {
         </div>
         <Card className="w-full max-w-lg h-full mx-auto md:mx-0">
         <CardHeader>
-          <CardTitle>Welcome</CardTitle>
-          <CardDescription>Sign in or create an account</CardDescription>
+          <CardTitle>{t("auth.welcome")}</CardTitle>
+          <CardDescription>{t("auth.signInOrCreate")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
