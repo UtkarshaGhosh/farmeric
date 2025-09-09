@@ -112,12 +112,13 @@ export async function upsertUserProfile(profile: { name: string; location?: { di
   if (existingByPhone && existingByPhone.uid !== user.id) {
     throw new Error('This phone number is already registered to another account.');
   }
+  const metaRole = ((user.user_metadata as any)?.role as 'farmer' | 'vet' | undefined) || undefined;
   const payload: any = {
     uid: user.id,
     email: user.email || '',
     name: profile.name,
     phone: normalizedPhone,
-    role: profile.role ?? (existing as any)?.role ?? 'farmer',
+    role: profile.role ?? (existing as any)?.role ?? metaRole ?? 'farmer',
     language: profile.language_preference ?? (existing as any)?.language ?? 'en',
     created_at: (existing as any)?.created_at ?? now,
   };
