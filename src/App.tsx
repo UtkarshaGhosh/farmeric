@@ -9,7 +9,6 @@ import Auth from "./pages/Auth";
 import Logout from "./pages/Logout";
 import Onboarding from "./pages/Onboarding";
 import FarmSetup from "./pages/FarmSetup";
-import AdminSeed from "./pages/AdminSeed";
 import VetLayout from "./pages/vet/Layout";
 import VetDashboard from "./pages/vet/Dashboard";
 import VetFarms from "./pages/vet/Farms";
@@ -64,7 +63,6 @@ const App = () => (
             <Route path="outbreaks" element={<VetOutbreaks />} />
           </Route>
           <Route path="/logout" element={<Logout />} />
-          <Route path="/admin/seed" element={<RequireAuth><AdminSeed /></RequireAuth>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
