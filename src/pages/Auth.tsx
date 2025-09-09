@@ -132,7 +132,8 @@ export default function Auth() {
           toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
           setTab('login');
         } else {
-          toast({ title: "Check your email to confirm" });
+          toast({ title: "Check your email to confirm", description: `Sent to ${emailNorm}` });
+          setNeedConfirm(true);
         }
       }
     } catch (err: any) {
