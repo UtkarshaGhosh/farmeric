@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listAlertsByLocation } from "@/integrations/supabase/api";
 import { DiseaseAlert } from "./DiseaseAlert";
+import { useI18n } from "@/lib/i18n";
 
 const mockAlerts = [
   {
