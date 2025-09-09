@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listTrainingModules } from "@/integrations/supabase/api";
 import { TrainingModuleCard } from "./TrainingModuleCard";
+import { useI18n } from "@/lib/i18n";
 
 const mockTraining = [
   {
@@ -61,14 +62,15 @@ export const TrainingTab = () => {
   const total = modules.length;
   const percent = Math.round((completed / Math.max(1, total)) * 100);
 
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-primary/10 to-primary-glow/10 p-4 rounded-xl border border-primary/20">
-        <h2 className="text-lg font-semibold text-primary mb-2">Training Progress</h2>
+        <h2 className="text-lg font-semibold text-primary mb-2">{t("training.progress","Training Progress")}</h2>
         <div className="w-full bg-muted rounded-full h-2">
           <div className="bg-gradient-to-r from-primary to-primary-glow h-2 rounded-full" style={{ width: `${percent}%` }}></div>
         </div>
-        <p className="text-sm text-muted-foreground mt-2">{completed} of {total} modules completed</p>
+        <p className="text-sm text-muted-foreground mt-2">{completed} {t("common.of","of")} {total} {t("training.modulesCompleted","modules completed")}</p>
       </div>
 
       <div className="space-y-4">
