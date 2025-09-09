@@ -7,20 +7,20 @@
 @layer base {
   :root {
     /* Core Agricultural Theme */
-    --background: 0 0% 98%;
-    --foreground: 0 0% 13%;
+    --background: 187 72% 93%;
+    --foreground: 200 19% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 13%;
+    --card-foreground: 200 19% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 13%;
+    --popover-foreground: 200 19% 18%;
 
     /* Primary: Deep Farm Green with enhanced gradients */
-    --primary: 123 46% 34%;
+    --primary: 146 50% 36%;
     --primary-foreground: 0 0% 100%;
-    --primary-muted: 123 40% 85%;
-    --primary-glow: 123 46% 44%;
+    --primary-muted: 186 71% 82%;
+    --primary-glow: 146 50% 46%;
     
     /* Enhanced gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
@@ -35,52 +35,52 @@
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Secondary: Warm Earth */
-    --secondary: 15 25% 34%;
+    --secondary: 196 43% 30%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 62%;
+    --muted-foreground: 200 18% 46%;
 
-    --accent: 201 98% 41%;
+    --accent: 199 91% 64%;
     --accent-foreground: 0 0% 100%;
 
     /* Risk Level Colors */
-    --risk-low: 123 41% 45%;
-    --risk-low-bg: 123 41% 95%;
-    --risk-medium: 34 100% 49%;
-    --risk-medium-bg: 34 100% 95%;
-    --risk-high: 2 77% 55%;
-    --risk-high-bg: 2 77% 95%;
+    --risk-low: 122 39% 49%;
+    --risk-low-bg: 122 39% 95%;
+    --risk-medium: 36 100% 50%;
+    --risk-medium-bg: 36 100% 95%;
+    --risk-high: 0 65% 51%;
+    --risk-high-bg: 0 65% 95%;
 
     /* Status Colors */
-    --success: 123 46% 34%;
+    --success: 122 39% 49%;
     --success-foreground: 0 0% 100%;
-    --warning: 37 95% 56%;
+    --warning: 36 100% 50%;
     --warning-foreground: 0 0% 10%;
-    --destructive: 2 77% 55%;
+    --destructive: 0 65% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 15 25% 80%;
-    --input: 15 25% 80%;
-    --ring: 123 46% 34%;
+    --border: 200 15% 73%;
+    --input: 200 15% 73%;
+    --ring: 146 50% 36%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 187 72% 93%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-foreground: 200 19% 18%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 146 50% 36%;
 
     --sidebar-primary-foreground: 0 0% 98%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent: 199 91% 96%;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-accent-foreground: 200 19% 18%;
 
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 200 15% 73%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 199 91% 64%;
   }
 
   .dark {
