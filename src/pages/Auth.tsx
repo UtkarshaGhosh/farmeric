@@ -49,15 +49,12 @@ export default function Auth() {
       const message = err?.message || String(err);
       const lower = (message || "").toLowerCase();
       if (lower.includes("confirm") && lower.includes("email") || lower.includes("not confirmed")) {
-        try {
-          const { resendConfirmation } = await import("@/integrations/supabase/api");
-          await resendConfirmation(email);
-          toast({ title: "Email not confirmed", description: "We resent the verification email. Please check your inbox." });
-        } catch {
-          toast({ title: "Email not confirmed", description: "Please check your inbox for the verification email." });
-        }
+        setNeedConfirm(true);
+        toast({ title: "Email not confirmed", description: "Please verify your email to sign in." });
       } else if (lower.includes("invalid") && (lower.includes("credentials") || lower.includes("login"))) {
         toast({ title: "Invalid email or password", description: "Please try again." });
+      } else if (lower.includes("network") || lower.includes("fetch")) {
+        toast({ title: "Network error", description: "Check your connection and try again." });
       } else {
         toast({ title: "Error", description: message });
       }
