@@ -66,7 +66,7 @@ export default function Auth() {
     try {
       const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
       toast({ title: session ? "Account created" : "Check your email to confirm" });
-      navigate("/");
+      navigate(role === 'vet' ? "/vet" : "/");
     } catch (err: any) {
       const message = err?.message || String(err);
       const lower = (message || "").toLowerCase();
