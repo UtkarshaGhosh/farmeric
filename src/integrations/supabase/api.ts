@@ -426,3 +426,8 @@ export async function listAlertsHistory(limit = 20) {
   if (error) return [];
   return data || [];
 }
+
+export async function emailInUse(email: string) {
+  const { data } = await supabase.from('users').select('uid').eq('email', email).maybeSingle();
+  return !!data;
+}
