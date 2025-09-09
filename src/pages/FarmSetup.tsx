@@ -7,10 +7,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { createFarm, listMyFarms } from "@/integrations/supabase/api";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/lib/i18n";
 
 export default function FarmSetup() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [district, setDistrict] = useState("");
   const [stateName, setStateName] = useState("");
@@ -49,43 +51,43 @@ export default function FarmSetup() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Set up your farm</CardTitle>
-          <CardDescription>Create a farm profile to continue</CardDescription>
+          <CardTitle>{t("farm.setupTitle","Set up your farm")}</CardTitle>
+          <CardDescription>{t("farm.setupDesc","Create a farm profile to continue")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-3" onSubmit={onSubmit}>
             <div className="space-y-1">
-              <Label htmlFor="name">Farm Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g., Green Valley Farm" />
+              <Label htmlFor="name">{t("farm.name","Farm Name")}</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t("farm.namePh","e.g., Green Valley Farm")} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="district">District</Label>
-                <Input id="district" value={district} onChange={(e) => setDistrict(e.target.value)} placeholder="District" />
+                <Label htmlFor="district">{t("common.district","District")}</Label>
+                <Input id="district" value={district} onChange={(e) => setDistrict(e.target.value)} placeholder={t("common.district","District")} />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="state">State</Label>
-                <Input id="state" value={stateName} onChange={(e) => setStateName(e.target.value)} placeholder="State" />
+                <Label htmlFor="state">{t("common.state","State")}</Label>
+                <Input id="state" value={stateName} onChange={(e) => setStateName(e.target.value)} placeholder={t("common.state","State")} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Livestock Type</Label>
+              <Label>{t("farm.livestockType","Livestock Type")}</Label>
               <RadioGroup value={livestock} onValueChange={(v) => setLivestock(v as any)} className="flex gap-6">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem id="pig" value="pig" />
-                  <Label htmlFor="pig">Pig</Label>
+                  <Label htmlFor="pig">{t("farm.pig","Pig")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem id="poultry" value="poultry" />
-                  <Label htmlFor="poultry">Poultry</Label>
+                  <Label htmlFor="poultry">{t("farm.poultry","Poultry")}</Label>
                 </div>
               </RadioGroup>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="herd">Herd Size</Label>
-              <Input id="herd" type="number" min={0} value={herdSize} onChange={(e) => setHerdSize(e.target.value === "" ? "" : Number(e.target.value))} placeholder="Number of animals" />
+              <Label htmlFor="herd">{t("farm.herdSize","Herd Size")}</Label>
+              <Input id="herd" type="number" min={0} value={herdSize} onChange={(e) => setHerdSize(e.target.value === "" ? "" : Number(e.target.value))} placeholder={t("farm.numberOfAnimals","Number of animals")} />
             </div>
-            <Button className="w-full" type="submit" disabled={loading || !name || !livestock}>Save Farm</Button>
+            <Button className="w-full" type="submit" disabled={loading || !name || !livestock}>{t("farm.saveFarm","Save Farm")}</Button>
           </form>
         </CardContent>
       </Card>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { RiskAssessmentCard } from "./RiskAssessmentCard";
 import { RiskAssessmentForm } from "./RiskAssessmentForm";
+import { useI18n } from "@/lib/i18n";
 
 interface DashboardTabProps {
   farmerData: {
@@ -10,17 +11,17 @@ interface DashboardTabProps {
 
 export const DashboardTab = ({ farmerData }: DashboardTabProps) => {
   const [open, setOpen] = useState(false)
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
-      {/* Quick Stats Cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gradient-to-br from-primary/10 to-primary/20 p-4 rounded-xl border border-primary/20 shadow-sm">
           <div className="text-2xl font-bold text-primary">75</div>
-          <div className="text-sm text-muted-foreground">Risk Score</div>
+          <div className="text-sm text-muted-foreground">{t("dashboard.riskScore","Risk Score")}</div>
         </div>
         <div className="bg-gradient-to-br from-success/10 to-success/20 p-4 rounded-xl border border-success/20 shadow-sm">
           <div className="text-2xl font-bold text-success">3/5</div>
-          <div className="text-sm text-muted-foreground">Compliance</div>
+          <div className="text-sm text-muted-foreground">{t("dashboard.compliance","Compliance")}</div>
         </div>
       </div>
 

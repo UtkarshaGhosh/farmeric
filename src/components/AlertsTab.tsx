@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listAlertsByLocation } from "@/integrations/supabase/api";
 import { DiseaseAlert } from "./DiseaseAlert";
+import { useI18n } from "@/lib/i18n";
 
 const mockAlerts = [
   {
@@ -48,11 +49,12 @@ export const AlertsTab = () => {
     })();
   }, []);
 
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-destructive/10 to-destructive/20 p-4 rounded-xl border border-destructive/20">
-        <h2 className="text-lg font-semibold text-destructive mb-2">Active Alerts</h2>
-        <p className="text-sm text-muted-foreground">{alerts.length} disease outbreaks in your area</p>
+        <h2 className="text-lg font-semibold text-destructive mb-2">{t("alerts.activeAlerts","Active Alerts")}</h2>
+        <p className="text-sm text-muted-foreground">{alerts.length} {t("alerts.inYourArea","disease outbreaks in your area")}</p>
       </div>
 
       <DiseaseAlert alerts={alerts as any} />

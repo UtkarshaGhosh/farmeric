@@ -9,11 +9,14 @@ import { signInWithPassword, signUpWithPassword } from "@/integrations/supabase/
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { signOut } from "@/integrations/supabase/api";
+import { useI18n } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Auth() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useI18n();
   const [tab, setTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +27,7 @@ export default function Auth() {
   const [resendLoading, setResendLoading] = useState(false);
   const [needConfirm, setNeedConfirm] = useState(false);
   const [role, setRole] = useState<'farmer' | 'vet'>('farmer');
-      
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("confirmed") === "1") {
@@ -168,32 +171,35 @@ export default function Auth() {
           <img src="/placeholder.svg" alt="Logo" className="w-full max-w-[420px] h-auto object-contain opacity-95" />
         </div>
         <Card className="w-full max-w-lg h-full mx-auto md:mx-0">
-        <CardHeader>
-          <CardTitle>Welcome</CardTitle>
-          <CardDescription>Sign in or create an account</CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
+          <div>
+            <CardTitle>{t("auth.welcome")}</CardTitle>
+            <CardDescription>{t("auth.signInOrCreate")}</CardDescription>
+          </div>
+          <LanguageSwitcher className="w-[160px]" />
         </CardHeader>
         <CardContent>
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
             <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="login">{t("auth.login")}</TabsTrigger>
+              <TabsTrigger value="signup">{t("auth.signUp")}</TabsTrigger>
                           </TabsList>
 
             <TabsContent value="login" className="mt-4">
               <form className="space-y-3" onSubmit={onLogin}>
                 <div className="space-y-1">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
+                  <Label htmlFor="email">{t("common.email")}</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t("ph.email")} />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
+                  <Label htmlFor="password">{t("common.password")}</Label>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder={t("ph.password")} />
                 </div>
-                <Button className="w-full" type="submit" disabled={loading || !email || !password}>Sign In</Button>
+                <Button className="w-full" type="submit" disabled={loading || !email || !password}>{t("auth.signIn")}</Button>
                 {needConfirm && (
                   <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-                    <span>Didn’t get the email?</span>
-                    <Button type="button" variant="link" size="sm" onClick={handleResend} disabled={resendLoading}>{resendLoading ? 'Resending…' : 'Resend verification'}</Button>
+                    <span>{t("auth.didntGetEmail")}</span>
+                    <Button type="button" variant="link" size="sm" onClick={handleResend} disabled={resendLoading}>{resendLoading ? 'Resending…' : t("auth.resendVerification")}</Button>
                   </div>
                 )}
               </form>
@@ -202,39 +208,39 @@ export default function Auth() {
             <TabsContent value="signup" className="mt-4">
               <form className="space-y-3" onSubmit={onSignUp}>
                 <div className="space-y-1">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+                  <Label htmlFor="name">{t("common.name")}</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("ph.name")} />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="email2">Email</Label>
-                  <Input id="email2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
+                  <Label htmlFor="email2">{t("common.email")}</Label>
+                  <Input id="email2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t("ph.email")} />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="e.g., 9876543210" />
+                  <Label htmlFor="phone">{t("common.phone")}</Label>
+                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder={t("ph.phone")} />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="password2">Password</Label>
-                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
+                  <Label htmlFor="password2">{t("common.password")}</Label>
+                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder={t("ph.password")} />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="confirm">Confirm Password</Label>
-                  <Input id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required placeholder="••••••" />
+                  <Label htmlFor="confirm">{t("auth.confirmPassword")}</Label>
+                  <Input id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required placeholder={t("ph.confirm")} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Role</Label>
+                  <Label>{t("auth.role")}</Label>
                   <RadioGroup value={role} onValueChange={(v) => setRole(v as any)} className="flex gap-6">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem id="role-farmer" value="farmer" />
-                      <Label htmlFor="role-farmer">Farmer</Label>
+                      <Label htmlFor="role-farmer">{t("roles.farmer")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem id="role-vet" value="vet" />
-                      <Label htmlFor="role-vet">Vet</Label>
+                      <Label htmlFor="role-vet">{t("roles.vet")}</Label>
                     </div>
                   </RadioGroup>
                 </div>
-                <Button className="w-full" type="submit" disabled={loading || !email || !password || !confirm}>Create Account</Button>
+                <Button className="w-full" type="submit" disabled={loading || !email || !password || !confirm}>{t("auth.signUp")}</Button>
               </form>
             </TabsContent>
 

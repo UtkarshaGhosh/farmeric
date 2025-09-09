@@ -7,11 +7,13 @@ import { ComplianceTab } from "@/components/ComplianceTab";
 import { AlertsTab } from "@/components/AlertsTab";
 import { getUserProfile, listMyFarms, listFarmAssessments } from "@/integrations/supabase/api";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/lib/i18n";
 
 interface FarmInfo { id: string; name: string; livestock_type?: "pig" | "poultry"; }
 
 const Index = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
   const [farmerName, setFarmerName] = useState("Farmer");
@@ -77,7 +79,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20">
       <FarmHeader 
         farmerName={farmerName}
-        farmName={farm?.name || "Your Farm"}
+        farmName={farm?.name || t("farm.yourFarm","Your Farm")}
         riskLevel={riskLevel}
         notifications={0}
       />
