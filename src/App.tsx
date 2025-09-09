@@ -18,7 +18,6 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { getSession, onAuthStateChange } from "@/integrations/supabase/api";
 import { I18nProvider } from "@/lib/i18n";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const queryClient = new QueryClient();
 
