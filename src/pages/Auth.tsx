@@ -37,8 +37,9 @@ export default function Auth() {
     setLoading(true);
     try {
       await signInWithPassword(email, password);
+      const prof = await (await import("@/integrations/supabase/api")).getUserProfile();
       toast({ title: "Signed in" });
-      navigate("/");
+      navigate(prof?.role === 'vet' ? "/vet" : "/");
     } catch (err: any) {
       toast({ title: "Error", description: err.message || String(err) });
     } finally {
