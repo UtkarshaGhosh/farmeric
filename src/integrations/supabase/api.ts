@@ -67,6 +67,18 @@ export async function signOut() {
   if (error) throw error;
 }
 
+export async function resendConfirmation(email: string) {
+  const { data, error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth?confirmed=1` : undefined,
+    },
+  });
+  if (error) throw error;
+  return data as any;
+}
+
 export async function getSession() {
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
