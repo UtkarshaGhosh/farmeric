@@ -32,6 +32,8 @@ export default function Auth() {
     }
   }, [location.search]);
 
+  function isValidEmail(v: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
