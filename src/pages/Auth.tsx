@@ -80,7 +80,7 @@ export default function Auth() {
         toast({ title: "Phone already registered", description: "Use a different phone or sign in.", variant: "destructive" });
         setTab("login");
       } else if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
-        toast({ title: "Email already registered", description: "Please sign in with this email.", variant: "destructive" });
+        toast({ title: "acc cannot be created as ir exists", description: "Use Sign In instead.", variant: "destructive" });
         setTab("login");
       } else {
         toast({ title: "Error", description: message, variant: "destructive" });
