@@ -4,7 +4,6 @@ import { Menu, Bell, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "@/integrations/supabase/api";
 import { useI18n } from "@/lib/i18n";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface FarmHeaderProps {
   farmerName: string;
@@ -42,8 +41,6 @@ export function FarmHeader({ farmerName, farmName, riskLevel, notifications }: F
           <Badge className={`${getRiskColor(riskLevel)} font-medium`}>
             {t("header.risk","Risk")}: {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
           </Badge>
-
-          <LanguageSwitcher />
 
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
