@@ -2,6 +2,7 @@ import { Play, FileText, Trophy, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
 
 interface TrainingModule {
   id: string;
@@ -46,6 +47,7 @@ export function TrainingModuleCard({ module }: TrainingModuleCardProps) {
     }
   };
 
+  const { t } = useI18n();
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -57,7 +59,7 @@ export function TrainingModuleCard({ module }: TrainingModuleCardProps) {
                 <span className="ml-1 capitalize">{module.type}</span>
               </Badge>
               <Badge variant="outline" className={getLivestockColor(module.livestock)}>
-                {module.livestock === "both" ? "All" : module.livestock}
+                {module.livestock === "both" ? t("common.all","All") : module.livestock}
               </Badge>
             </div>
             <h3 className="font-semibold text-sm">{module.title}</h3>
@@ -80,7 +82,7 @@ export function TrainingModuleCard({ module }: TrainingModuleCardProps) {
         {module.progress !== undefined && (
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span>Progress</span>
+              <span>{t("common.progress","Progress")}</span>
               <span>{module.progress}%</span>
             </div>
             <div className="w-full bg-muted h-2 rounded-full">
@@ -92,11 +94,11 @@ export function TrainingModuleCard({ module }: TrainingModuleCardProps) {
           </div>
         )}
         
-        <Button 
-          className="w-full" 
+        <Button
+          className="w-full"
           variant={module.completed ? "outline" : "default"}
         >
-          {module.completed ? "Review" : "Start"}
+          {module.completed ? t("common.review","Review") : t("common.start","Start")}
         </Button>
       </CardContent>
     </Card>
