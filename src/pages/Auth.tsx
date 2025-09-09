@@ -83,8 +83,11 @@ export default function Auth() {
 
   async function onSignUp(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 6) {
-      toast({ title: "Weak password", description: "Use at least 6 characters." });
+    const emailNorm = email.trim().toLowerCase();
+    if (!isValidEmail(emailNorm)) { toast({ title: "Invalid email", description: "Enter a valid email address." }); return; }
+    const strong = password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password);
+    if (!strong) {
+      toast({ title: "Weak password", description: "Use 8+ chars with letters and numbers." });
       return;
     }
     if (password !== confirm) {
