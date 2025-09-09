@@ -7,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { upsertUserProfile } from "@/integrations/supabase/api";
 import { useNavigate } from "react-router-dom";
+import { useI18n, LANGUAGES } from "@/lib/i18n";
 
 export default function Onboarding() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [district, setDistrict] = useState("");
   const [village, setVillage] = useState("");
@@ -46,50 +48,47 @@ export default function Onboarding() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome</CardTitle>
-          <CardDescription>Let's set up your profile</CardDescription>
+          <CardTitle>{t("onboarding.welcome","Welcome")}</CardTitle>
+          <CardDescription>{t("onboarding.setupProfile","Let's set up your profile")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-3" onSubmit={onSubmit}>
             <div className="space-y-1">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Your name" />
+              <Label htmlFor="name">{t("onboarding.fullName","Full Name")}</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t("ph.name","Your name")} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="district">District</Label>
-                <Input id="district" value={district} onChange={(e) => setDistrict(e.target.value)} required placeholder="District" />
+                <Label htmlFor="district">{t("common.district","District")}</Label>
+                <Input id="district" value={district} onChange={(e) => setDistrict(e.target.value)} required placeholder={t("common.district","District")} />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="village">Village</Label>
-                <Input id="village" value={village} onChange={(e) => setVillage(e.target.value)} placeholder="Village" />
+                <Label htmlFor="village">{t("common.village","Village")}</Label>
+                <Input id="village" value={village} onChange={(e) => setVillage(e.target.value)} placeholder={t("common.village","Village")} />
               </div>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="state">State</Label>
-              <Input id="state" value={stateName} onChange={(e) => setStateName(e.target.value)} placeholder="State" />
+              <Label htmlFor="state">{t("common.state","State")}</Label>
+              <Input id="state" value={stateName} onChange={(e) => setStateName(e.target.value)} placeholder={t("common.state","State")} />
             </div>
             <div className="space-y-1">
-              <Label>Preferred Language</Label>
+              <Label>{t("common.preferredLanguage","Preferred Language")}</Label>
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
+                  <SelectValue placeholder={t("common.selectLanguage","Select language")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="hi">Hindi</SelectItem>
-                  <SelectItem value="bn">Bengali</SelectItem>
-                  <SelectItem value="mr">Marathi</SelectItem>
-                  <SelectItem value="ta">Tamil</SelectItem>
-                  <SelectItem value="te">Telugu</SelectItem>
+                  {LANGUAGES.map((l)=> (
+                    <SelectItem key={l.code} value={l.code}>{l.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="e.g., 9876543210" />
+              <Label htmlFor="phone">{t("common.phone","Phone")}</Label>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder={t("ph.phone","e.g., 9876543210")} />
             </div>
-            <Button className="w-full" type="submit" disabled={loading || !name || !district || !language || !phone}>Continue</Button>
+            <Button className="w-full" type="submit" disabled={loading || !name || !district || !language || !phone}>{t("common.continue","Continue")}</Button>
           </form>
         </CardContent>
       </Card>
