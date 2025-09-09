@@ -170,9 +170,12 @@ export default function Auth() {
           <img src="/placeholder.svg" alt="Logo" className="w-full max-w-[420px] h-auto object-contain opacity-95" />
         </div>
         <Card className="w-full max-w-lg h-full mx-auto md:mx-0">
-        <CardHeader>
-          <CardTitle>{t("auth.welcome")}</CardTitle>
-          <CardDescription>{t("auth.signInOrCreate")}</CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
+          <div>
+            <CardTitle>{t("auth.welcome")}</CardTitle>
+            <CardDescription>{t("auth.signInOrCreate")}</CardDescription>
+          </div>
+          <LanguageSwitcher className="w-[160px]" />
         </CardHeader>
         <CardContent>
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
