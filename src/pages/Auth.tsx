@@ -126,6 +126,7 @@ export default function Auth() {
             await resendConfirmation(email);
           } catch {}
           toast({ title: "Account already exists", description: "We re-sent the verification email. Please confirm, then sign in.", variant: "destructive" });
+          setNeedConfirm(true);
           setTab('login');
         } else if (low.includes('invalid') && (low.includes('credentials') || low.includes('password') || low.includes('login'))) {
           toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
@@ -205,7 +206,7 @@ export default function Auth() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="password2">Password</Label>
-                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••���•" />
+                  <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="confirm">Confirm Password</Label>
