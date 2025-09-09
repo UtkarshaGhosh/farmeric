@@ -86,7 +86,7 @@ export default function Auth() {
         lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist")) ||
         (lower.includes("duplicate") && (lower.includes("users_email_key") || lower.includes("email") || lower.includes("unique constraint")))
       ) {
-        toast({ title: "acc cannot be created as ir exists", description: "Use Sign In instead.", variant: "destructive" });
+        toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
         setTab("login");
       } else {
         toast({ title: "Error", description: message, variant: "destructive" });
