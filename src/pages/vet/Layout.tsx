@@ -2,7 +2,6 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUserProfile, signOut } from "@/integrations/supabase/api";
 import { Button } from "@/components/ui/button";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/lib/i18n";
 
 export default function VetLayout() {
@@ -34,7 +33,6 @@ export default function VetLayout() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher className="w-[160px]" />
             <div className="text-sm text-muted-foreground">{name}</div>
             <Button variant="outline" size="sm" onClick={async ()=>{ await signOut(); navigate('/auth'); }}>{t("common.logout","Logout")}</Button>
           </div>
