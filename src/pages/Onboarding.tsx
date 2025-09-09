@@ -32,9 +32,9 @@ export default function Onboarding() {
     }
     setLoading(true);
     try {
-      await upsertUserProfile({ name, location: { district, village, state: stateName }, language_preference: language, phone: normalizedPhone });
+      const profile = await upsertUserProfile({ name, location: { district, village, state: stateName }, language_preference: language, phone: normalizedPhone });
       toast({ title: "Profile saved" });
-      navigate("/farm-setup");
+      navigate(profile?.role === 'vet' ? "/vet" : "/farm-setup");
     } catch (e: any) {
       toast({ title: "Error", description: e.message || String(e), variant: "destructive" });
     } finally {
