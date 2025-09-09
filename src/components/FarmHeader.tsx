@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Menu, Globe, Bell, LogOut } from "lucide-react";
+import { Menu, Bell, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "@/integrations/supabase/api";
+import { useI18n } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface FarmHeaderProps {
   farmerName: string;
@@ -22,28 +24,27 @@ export function FarmHeader({ farmerName, farmName, riskLevel, notifications }: F
     }
   };
 
+  const { t } = useI18n();
   return (
-    <header className="bg-white border-b border-border p-4 sticky top-0 z-50">
+    <header className="bg-white border-b border-border p-4 sticky top-0 z-40">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="font-semibold text-foreground">Welcome, {farmerName}</h1>
+            <h1 className="font-semibold text-foreground">{t("header.welcome","Welcome")}, {farmerName}</h1>
             <p className="text-sm text-muted-foreground">{farmName}</p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <Badge className={`${getRiskColor(riskLevel)} font-medium`}>
-            Risk: {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
+            {t("header.risk","Risk")}: {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
           </Badge>
-          
-          <Button variant="ghost" size="icon" className="relative">
-            <Globe className="h-5 w-5" />
-          </Button>
-          
+
+          <LanguageSwitcher />
+
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             {notifications > 0 && (
@@ -55,7 +56,7 @@ export function FarmHeader({ farmerName, farmName, riskLevel, notifications }: F
 
           <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate('/auth'); }}>
             <LogOut className="h-4 w-4" />
-            <span className="ml-2 hidden sm:inline">Logout</span>
+            <span className="ml-2 hidden sm:inline">{t("common.logout","Logout")}</span>
           </Button>
         </div>
       </div>
