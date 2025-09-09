@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { signInWithPassword, signUpWithPassword, signInWithGoogle } from "@/integrations/supabase/api";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { signInWithPassword, signUpWithPassword } from "@/integrations/supabase/api";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { signOut } from "@/integrations/supabase/api";
 
@@ -116,9 +116,6 @@ export default function Auth() {
                 </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password}>Sign In</Button>
               </form>
-              <div className="mt-4">
-                <Button variant="outline" className="w-full" onClick={async () => { try { setLoading(true); await signInWithGoogle(); navigate("/"); } catch (e:any) { toast({ title: "Error", description: e.message || String(e) }); } finally { setLoading(false); }}}>Continue with Google</Button>
-              </div>
             </TabsContent>
 
             <TabsContent value="signup" className="mt-4">
