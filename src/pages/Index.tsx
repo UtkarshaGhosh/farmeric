@@ -13,6 +13,7 @@ interface FarmInfo { id: string; name: string; livestock_type?: "pig" | "poultry
 
 const Index = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
   const [farmerName, setFarmerName] = useState("Farmer");
