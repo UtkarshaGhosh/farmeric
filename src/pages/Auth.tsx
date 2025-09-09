@@ -15,6 +15,7 @@ export default function Auth() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useI18n();
   const [tab, setTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +26,7 @@ export default function Auth() {
   const [resendLoading, setResendLoading] = useState(false);
   const [needConfirm, setNeedConfirm] = useState(false);
   const [role, setRole] = useState<'farmer' | 'vet'>('farmer');
-      
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("confirmed") === "1") {
