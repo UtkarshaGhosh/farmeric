@@ -168,7 +168,7 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-[480px,1fr] gap-8 items-stretch">
         <div className="hidden md:flex h-full items-center justify-center rounded-lg border bg-card p-8 shadow-sm">
-          <img src="/placeholder.svg" alt="Logo" className="w-full max-w-[420px] h-auto object-contain opacity-95" />
+          <img src="/placeholder.jpg" alt="Logo" className="w-full max-w-[420px] h-auto object-contain opacity-95" />
         </div>
         <Card className="w-full max-w-lg h-full mx-auto md:mx-0">
         <CardHeader className="flex flex-row items-start justify-between gap-4">
