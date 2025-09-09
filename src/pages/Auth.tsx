@@ -37,6 +37,9 @@ export default function Auth() {
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setNeedConfirm(false);
+    const emailNorm = email.trim().toLowerCase();
+    if (!isValidEmail(emailNorm)) { setLoading(false); toast({ title: "Invalid email", description: "Enter a valid email address." }); return; }
     try {
       await signInWithPassword(email, password);
       const prof = await (await import("@/integrations/supabase/api")).getUserProfile();
