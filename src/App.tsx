@@ -17,6 +17,8 @@ import VetOutbreaks from "./pages/vet/Outbreaks";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { getSession, onAuthStateChange } from "@/integrations/supabase/api";
+import { I18nProvider } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const queryClient = new QueryClient();
 
@@ -50,23 +52,26 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
-          <Route path="/farm-setup" element={<RequireAuth><FarmSetup /></RequireAuth>} />
-          <Route path="/vet" element={<RequireAuth><VetLayout /></RequireAuth>}>
-            <Route index element={<VetDashboard />} />
-            <Route path="farms" element={<VetFarms />} />
-            <Route path="compliance" element={<VetCompliance />} />
-            <Route path="outbreaks" element={<VetOutbreaks />} />
-          </Route>
-          <Route path="/logout" element={<Logout />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <I18nProvider>
+        <LanguageSwitcher />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+            <Route path="/farm-setup" element={<RequireAuth><FarmSetup /></RequireAuth>} />
+            <Route path="/vet" element={<RequireAuth><VetLayout /></RequireAuth>}>
+              <Route index element={<VetDashboard />} />
+              <Route path="farms" element={<VetFarms />} />
+              <Route path="compliance" element={<VetCompliance />} />
+              <Route path="outbreaks" element={<VetOutbreaks />} />
+            </Route>
+            <Route path="/logout" element={<Logout />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </I18nProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
