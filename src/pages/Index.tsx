@@ -7,6 +7,7 @@ import { ComplianceTab } from "@/components/ComplianceTab";
 import { AlertsTab } from "@/components/AlertsTab";
 import { getUserProfile, listMyFarms, listFarmAssessments } from "@/integrations/supabase/api";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/lib/i18n";
 
 interface FarmInfo { id: string; name: string; livestock_type?: "pig" | "poultry"; }
 
