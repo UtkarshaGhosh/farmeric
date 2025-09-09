@@ -22,7 +22,7 @@ export async function signInWithPassword(email: string, password: string) {
   return data as any;
 }
 
-export async function signUpWithPassword(email: string, password: string, name?: string, role: 'farmer' | 'vet' = 'farmer', phone?: string) {
+export async function signUpWithPassword(email: string, password: string, name?: string, role: 'farmer' | 'vet', phone?: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -65,6 +65,18 @@ export async function signInWithGoogle() {
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+}
+
+export async function resendConfirmation(email: string) {
+  const { data, error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth?confirmed=1` : undefined,
+    },
+  });
+  if (error) throw error;
+  return data as any;
 }
 
 export async function getSession() {
@@ -112,15 +124,17 @@ export async function upsertUserProfile(profile: { name: string; location?: { di
   if (existingByPhone && existingByPhone.uid !== user.id) {
     throw new Error('This phone number is already registered to another account.');
   }
+  const metaRole = ((user.user_metadata as any)?.role as 'farmer' | 'vet' | undefined) || undefined;
   const payload: any = {
     uid: user.id,
     email: user.email || '',
     name: profile.name,
     phone: normalizedPhone,
-    role: profile.role ?? (existing as any)?.role ?? 'farmer',
     language: profile.language_preference ?? (existing as any)?.language ?? 'en',
     created_at: (existing as any)?.created_at ?? now,
   };
+  const roleVal = profile.role ?? (existing as any)?.role ?? metaRole;
+  if (roleVal) payload.role = roleVal;
   const { error } = await supabase.from('users').upsert(payload, { onConflict: 'uid' });
   if (error) throw error;
   return { ...(existing as any), ...payload };
@@ -343,7 +357,7 @@ export async function seedDemoData() {
   if (!user) throw new Error('Login required');
   const now = new Date().toISOString();
 
-  await supabase.from('users').upsert({ uid: user.id, role: 'farmer', email: user.email || null, name: (user.user_metadata as any)?.name || 'Farmer', created_at: now } as any, { onConflict: 'uid' } as any);
+  await supabase.from('users').upsert({ uid: user.id, email: user.email || null, name: (user.user_metadata as any)?.name || 'Farmer', created_at: now } as any, { onConflict: 'uid' } as any);
 
   const tm1 = { module_id: 'mod-safe-housing', title: 'Safe Poultry Housing', description: 'Reduce infection risk with proper housing.', type: 'video', link: 'https://www.youtube.com/watch?v=ysz5S6PUM-U', livestock_type: 'poultry', language: 'hi' };
   const tm2 = { module_id: 'mod-biosecurity-basics', title: 'Biosecurity Basics for Pig Farms', description: 'Visitor control, PPE, and hygiene.', type: 'pdf', link: 'https://www.who.int/docs/default-source/food-safety/biosecurity.pdf', livestock_type: 'pig', language: 'en' };

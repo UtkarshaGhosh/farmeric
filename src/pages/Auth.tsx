@@ -21,6 +21,8 @@ export default function Auth() {
   const [phone, setPhone] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [needConfirm, setNeedConfirm] = useState(false);
   const [role, setRole] = useState<'farmer' | 'vet'>('farmer');
       
   useEffect(() => {
@@ -32,25 +34,62 @@ export default function Auth() {
     }
   }, [location.search]);
 
+  function isValidEmail(v: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setNeedConfirm(false);
+    const emailNorm = email.trim().toLowerCase();
+    if (!isValidEmail(emailNorm)) { setLoading(false); toast({ title: "Invalid email", description: "Enter a valid email address." }); return; }
     try {
-      await signInWithPassword(email, password);
+      await signInWithPassword(emailNorm, password);
       const prof = await (await import("@/integrations/supabase/api")).getUserProfile();
       toast({ title: "Signed in" });
       navigate(prof?.role === 'vet' ? "/vet" : "/");
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || String(err) });
+      const message = err?.message || String(err);
+      const lower = (message || "").toLowerCase();
+      if (lower.includes("confirm") && lower.includes("email") || lower.includes("not confirmed")) {
+        setNeedConfirm(true);
+        toast({ title: "Email not confirmed", description: "Please verify your email to sign in." });
+      } else if (lower.includes("invalid") && (lower.includes("credentials") || lower.includes("login"))) {
+        toast({ title: "Invalid email or password", description: "Please try again." });
+      } else if (lower.includes("network") || lower.includes("fetch")) {
+        toast({ title: "Network error", description: "Check your connection and try again." });
+      } else {
+        toast({ title: "Error", description: message });
+      }
     } finally {
       setLoading(false);
     }
   }
 
+  async function handleResend() {
+    const emailNorm = email.trim().toLowerCase();
+    if (!isValidEmail(emailNorm)) { toast({ title: "Invalid email", description: "Enter a valid email address." }); return; }
+    setResendLoading(true);
+    try {
+      const { resendConfirmation } = await import("@/integrations/supabase/api");
+      await resendConfirmation(emailNorm);
+      toast({ title: "Verification email sent", description: `Sent to ${emailNorm}` });
+    } catch (e: any) {
+      const msg = (e?.message || "").toLowerCase();
+      if (msg.includes("rate") || msg.includes("limit")) {
+        toast({ title: "Too many attempts", description: "Please wait a bit before trying again." });
+      } else {
+        toast({ title: "Could not resend", description: e?.message || String(e) });
+      }
+    } finally { setResendLoading(false); }
+  }
+
   async function onSignUp(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 6) {
-      toast({ title: "Weak password", description: "Use at least 6 characters." });
+    const emailNorm = email.trim().toLowerCase();
+    if (!isValidEmail(emailNorm)) { toast({ title: "Invalid email", description: "Enter a valid email address." }); return; }
+    const strong = password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password);
+    if (!strong) {
+      toast({ title: "Weak password", description: "Use 8+ chars with letters and numbers." });
       return;
     }
     if (password !== confirm) {
@@ -64,23 +103,55 @@ export default function Auth() {
     }
     setLoading(true);
     try {
-      const exists = await (await import("@/integrations/supabase/api")).emailInUse(email);
+      const exists = await (await import("@/integrations/supabase/api")).emailInUse(emailNorm);
       if (exists) {
-        toast({ title: "Email already exists with another account", variant: "destructive" });
+        toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
         setTab("login");
         return;
       }
-      const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
-      toast({ title: session ? "Account created" : "Check your email to confirm" });
-      navigate(role === 'vet' ? "/vet" : "/");
+      const { session } = await signUpWithPassword(emailNorm, password, name, role, normalizedPhone);
+      if (session) {
+        toast({ title: "Account created" });
+        navigate(role === 'vet' ? "/vet" : "/");
+        return;
+      }
+      try {
+        await signInWithPassword(emailNorm, password);
+        toast({ title: "Signed in" });
+        navigate(role === 'vet' ? "/vet" : "/");
+      } catch (e: any) {
+        const msg = e?.message || String(e);
+        const low = (msg || '').toLowerCase();
+        if (low.includes('confirm') || low.includes('not confirmed')) {
+          try {
+            const { resendConfirmation } = await import("@/integrations/supabase/api");
+            await resendConfirmation(email);
+          } catch {}
+          toast({ title: "Account already exists", description: "We re-sent the verification email. Please confirm, then sign in.", variant: "destructive" });
+          setNeedConfirm(true);
+          setTab('login');
+        } else if (low.includes('invalid') && (low.includes('credentials') || low.includes('password') || low.includes('login'))) {
+          toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
+          setTab('login');
+        } else {
+          toast({ title: "Check your email to confirm", description: `Sent to ${emailNorm}` });
+          setNeedConfirm(true);
+        }
+      }
     } catch (err: any) {
       const message = err?.message || String(err);
       const lower = (message || "").toLowerCase();
       if (lower.includes("already") && ((lower.includes("registered") || lower.includes("exists") || lower.includes("exist")) && lower.includes("phone"))) {
         toast({ title: "Phone already registered", description: "Use a different phone or sign in.", variant: "destructive" });
         setTab("login");
-      } else if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
-        toast({ title: "Email already registered", description: "Please sign in with this email.", variant: "destructive" });
+      } else if (lower.includes("duplicate") && (lower.includes("users_phone_key") || lower.includes("phone") || lower.includes("unique constraint"))) {
+        toast({ title: "Phone already registered", description: "Use a different phone or sign in.", variant: "destructive" });
+        setTab("login");
+      } else if (
+        lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist")) ||
+        (lower.includes("duplicate") && (lower.includes("users_email_key") || lower.includes("email") || lower.includes("unique constraint")))
+      ) {
+        toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
         setTab("login");
       } else {
         toast({ title: "Error", description: message, variant: "destructive" });
@@ -92,7 +163,11 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-[480px,1fr] gap-8 items-stretch">
+        <div className="hidden md:flex h-full items-center justify-center rounded-lg border bg-card p-8 shadow-sm">
+          <img src="/placeholder.svg" alt="Logo" className="w-full max-w-[420px] h-auto object-contain opacity-95" />
+        </div>
+        <Card className="w-full max-w-lg h-full mx-auto md:mx-0">
         <CardHeader>
           <CardTitle>Welcome</CardTitle>
           <CardDescription>Sign in or create an account</CardDescription>
@@ -115,6 +190,12 @@ export default function Auth() {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
                 </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password}>Sign In</Button>
+                {needConfirm && (
+                  <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
+                    <span>Didn’t get the email?</span>
+                    <Button type="button" variant="link" size="sm" onClick={handleResend} disabled={resendLoading}>{resendLoading ? 'Resending…' : 'Resend verification'}</Button>
+                  </div>
+                )}
               </form>
             </TabsContent>
 
@@ -160,6 +241,7 @@ export default function Auth() {
           </Tabs>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
