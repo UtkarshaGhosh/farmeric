@@ -7,6 +7,18 @@ export async function signInWithEmailOtp(_email: string) {
 export async function signInWithPassword(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
+  try {
+    const user = data.user;
+    if (user) {
+      const metaRole = (user.user_metadata as any)?.role as 'farmer' | 'vet' | undefined;
+      if (metaRole) {
+        const { data: existing } = await supabase.from('users').select('uid, role').eq('uid', user.id).maybeSingle();
+        if (existing && existing.role !== metaRole) {
+          await supabase.from('users').update({ role: metaRole }).eq('uid', user.id);
+        }
+      }
+    }
+  } catch {}
   return data as any;
 }
 
@@ -15,7 +27,7 @@ export async function signUpWithPassword(email: string, password: string, name?:
     email,
     password,
     options: {
-      data: { name: name || "" },
+      data: { name: name || "", role, phone: phone || undefined },
       emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth?confirmed=1` : undefined,
     },
   });
