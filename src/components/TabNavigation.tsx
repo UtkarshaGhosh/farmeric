@@ -47,7 +47,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
                 "text-xs font-medium transition-colors duration-200",
                 activeTab === tab.id ? "text-primary" : "text-muted-foreground"
               )}>
-                {tab.label}
+                {t(tab.labelKey, tab.fallback)}
               </span>
             </Button>
           );
