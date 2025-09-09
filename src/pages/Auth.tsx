@@ -107,7 +107,7 @@ export default function Auth() {
         setTab("login");
         return;
       }
-      const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
+      const { session } = await signUpWithPassword(emailNorm, password, name, role, normalizedPhone);
       if (session) {
         toast({ title: "Account created" });
         navigate(role === 'vet' ? "/vet" : "/");
