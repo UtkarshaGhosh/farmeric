@@ -79,7 +79,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20">
       <FarmHeader 
         farmerName={farmerName}
-        farmName={farm?.name || "Your Farm"}
+        farmName={farm?.name || t("farm.yourFarm","Your Farm")}
         riskLevel={riskLevel}
         notifications={0}
       />
