@@ -21,6 +21,8 @@ export default function Auth() {
   const [phone, setPhone] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [needConfirm, setNeedConfirm] = useState(false);
   const [role, setRole] = useState<'farmer' | 'vet'>('farmer');
       
   useEffect(() => {
