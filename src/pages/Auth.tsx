@@ -63,6 +63,24 @@ export default function Auth() {
     }
   }
 
+  async function handleResend() {
+    const emailNorm = email.trim().toLowerCase();
+    if (!isValidEmail(emailNorm)) { toast({ title: "Invalid email", description: "Enter a valid email address." }); return; }
+    setResendLoading(true);
+    try {
+      const { resendConfirmation } = await import("@/integrations/supabase/api");
+      await resendConfirmation(emailNorm);
+      toast({ title: "Verification email sent", description: `Sent to ${emailNorm}` });
+    } catch (e: any) {
+      const msg = (e?.message || "").toLowerCase();
+      if (msg.includes("rate") || msg.includes("limit")) {
+        toast({ title: "Too many attempts", description: "Please wait a bit before trying again." });
+      } else {
+        toast({ title: "Could not resend", description: e?.message || String(e) });
+      }
+    } finally { setResendLoading(false); }
+  }
+
   async function onSignUp(e: React.FormEvent) {
     e.preventDefault();
     if (password.length < 6) {
