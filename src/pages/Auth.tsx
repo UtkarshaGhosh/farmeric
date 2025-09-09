@@ -101,7 +101,7 @@ export default function Auth() {
     }
     setLoading(true);
     try {
-      const exists = await (await import("@/integrations/supabase/api")).emailInUse(email);
+      const exists = await (await import("@/integrations/supabase/api")).emailInUse(emailNorm);
       if (exists) {
         toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
         setTab("login");
