@@ -64,6 +64,12 @@ export default function Auth() {
     }
     setLoading(true);
     try {
+      const exists = await (await import("@/integrations/supabase/api")).emailInUse(email);
+      if (exists) {
+        toast({ title: "Email already exists with another account", variant: "destructive" });
+        setTab("login");
+        return;
+      }
       const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
       toast({ title: session ? "Account created" : "Check your email to confirm" });
       navigate(role === 'vet' ? "/vet" : "/");
