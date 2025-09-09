@@ -188,6 +188,12 @@ export default function Auth() {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••" />
                 </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password}>Sign In</Button>
+                {needConfirm && (
+                  <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
+                    <span>Didn’t get the email?</span>
+                    <Button type="button" variant="link" size="sm" onClick={handleResend} disabled={resendLoading}>{resendLoading ? 'Resending…' : 'Resend verification'}</Button>
+                  </div>
+                )}
               </form>
             </TabsContent>
 
