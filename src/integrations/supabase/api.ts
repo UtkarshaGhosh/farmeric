@@ -7,6 +7,18 @@ export async function signInWithEmailOtp(_email: string) {
 export async function signInWithPassword(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
+  try {
+    const user = data.user;
+    if (user) {
+      const metaRole = (user.user_metadata as any)?.role as 'farmer' | 'vet' | undefined;
+      if (metaRole) {
+        const { data: existing } = await supabase.from('users').select('uid, role').eq('uid', user.id).maybeSingle();
+        if (existing && existing.role !== metaRole) {
+          await supabase.from('users').update({ role: metaRole }).eq('uid', user.id);
+        }
+      }
+    }
+  } catch {}
   return data as any;
 }
 
@@ -15,7 +27,7 @@ export async function signUpWithPassword(email: string, password: string, name?:
     email,
     password,
     options: {
-      data: { name: name || "" },
+      data: { name: name || "", role, phone: phone || undefined },
       emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth?confirmed=1` : undefined,
     },
   });
@@ -361,4 +373,73 @@ export async function seedDemoData() {
   }
 
   return { ok: true } as any;
+}
+
+export async function getVetStats() {
+  const [farmsRes, pendingRes] = await Promise.all([
+    supabase.from('farms').select('farm_id, id'),
+    supabase.from('compliance_records').select('record_id, status').eq('status', 'pending'),
+  ]);
+  const totalFarms = (farmsRes.data || []).length;
+  const pendingCompliance = (pendingRes.data || []).length;
+  let highRiskFarms = 0;
+  try {
+    const { data } = await supabase
+      .from('risk_assessments')
+      .select('farm_id, risk_level, date')
+      .order('date', { ascending: false });
+    const latestByFarm = new Map<string, any>();
+    for (const row of data || []) {
+      const fid = String((row as any).farm_id);
+      if (!latestByFarm.has(fid)) latestByFarm.set(fid, row);
+    }
+    highRiskFarms = Array.from(latestByFarm.values()).filter((r: any) => String(r.risk_level).toLowerCase() === 'high').length;
+  } catch {
+    highRiskFarms = 0;
+  }
+  return { totalFarms, highRiskFarms, pendingCompliance } as any;
+}
+
+export async function listLatestAlerts(limit = 5) {
+  const { data, error } = await supabase.from('alerts').select('*').order('issued_date', { ascending: false }).limit(limit);
+  if (error) return [];
+  return data || [];
+}
+
+export async function listFarmsWithLatestAssessment() {
+  const { data: farmsData } = await supabase.from('farms').select('*');
+  let assessments: any[] = [];
+  try {
+    const { data } = await supabase.from('risk_assessments').select('*').order('date', { ascending: false });
+    assessments = data || [];
+  } catch {
+    assessments = [];
+  }
+  const latestByFarm = new Map<string | number, any>();
+  for (const a of assessments) {
+    const key = a.farm_id;
+    if (!latestByFarm.has(key)) latestByFarm.set(key, a);
+  }
+  return (farmsData || []).map((f: any) => {
+    const latest = latestByFarm.get(f.farm_id ?? f.id);
+    return {
+      ...f,
+      id: f.farm_id ?? f.id,
+      name: f.farm_name ?? f.location ?? 'Farm',
+      risk_level: latest?.risk_level ?? null,
+      risk_score: latest?.score ?? null,
+      last_assessed: latest?.date ?? latest?.submitted_at ?? null,
+    };
+  });
+}
+
+export async function listAlertsHistory(limit = 20) {
+  const { data, error } = await supabase.from('alerts').select('*').order('issued_date', { ascending: false }).limit(limit);
+  if (error) return [];
+  return data || [];
+}
+
+export async function emailInUse(email: string) {
+  const { data } = await supabase.from('users').select('uid').eq('email', email).maybeSingle();
+  return !!data;
 }

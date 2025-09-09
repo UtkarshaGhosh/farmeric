@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { signInWithPassword, signUpWithPassword, signInWithGoogle } from "@/integrations/supabase/api";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { signInWithPassword, signUpWithPassword } from "@/integrations/supabase/api";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { signOut } from "@/integrations/supabase/api";
 
@@ -37,8 +37,9 @@ export default function Auth() {
     setLoading(true);
     try {
       await signInWithPassword(email, password);
+      const prof = await (await import("@/integrations/supabase/api")).getUserProfile();
       toast({ title: "Signed in" });
-      navigate("/");
+      navigate(prof?.role === 'vet' ? "/vet" : "/");
     } catch (err: any) {
       toast({ title: "Error", description: err.message || String(err) });
     } finally {
@@ -63,9 +64,15 @@ export default function Auth() {
     }
     setLoading(true);
     try {
+      const exists = await (await import("@/integrations/supabase/api")).emailInUse(email);
+      if (exists) {
+        toast({ title: "Email already exists with another account", variant: "destructive" });
+        setTab("login");
+        return;
+      }
       const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
       toast({ title: session ? "Account created" : "Check your email to confirm" });
-      navigate("/");
+      navigate(role === 'vet' ? "/vet" : "/");
     } catch (err: any) {
       const message = err?.message || String(err);
       const lower = (message || "").toLowerCase();
@@ -109,9 +116,6 @@ export default function Auth() {
                 </div>
                 <Button className="w-full" type="submit" disabled={loading || !email || !password}>Sign In</Button>
               </form>
-              <div className="mt-4">
-                <Button variant="outline" className="w-full" onClick={async () => { try { setLoading(true); await signInWithGoogle(); navigate("/"); } catch (e:any) { toast({ title: "Error", description: e.message || String(e) }); } finally { setLoading(false); }}}>Continue with Google</Button>
-              </div>
             </TabsContent>
 
             <TabsContent value="signup" className="mt-4">
