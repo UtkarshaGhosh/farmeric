@@ -9,6 +9,7 @@ import { signInWithPassword, signUpWithPassword } from "@/integrations/supabase/
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { signOut } from "@/integrations/supabase/api";
+import { useI18n } from "@/lib/i18n";
 
 export default function Auth() {
   const { toast } = useToast();
