@@ -79,7 +79,13 @@ export default function Auth() {
       if (lower.includes("already") && ((lower.includes("registered") || lower.includes("exists") || lower.includes("exist")) && lower.includes("phone"))) {
         toast({ title: "Phone already registered", description: "Use a different phone or sign in.", variant: "destructive" });
         setTab("login");
-      } else if (lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist"))) {
+      } else if (lower.includes("duplicate") && (lower.includes("users_phone_key") || lower.includes("phone") || lower.includes("unique constraint"))) {
+        toast({ title: "Phone already registered", description: "Use a different phone or sign in.", variant: "destructive" });
+        setTab("login");
+      } else if (
+        lower.includes("already") && (lower.includes("registered") || lower.includes("exists") || lower.includes("exist")) ||
+        (lower.includes("duplicate") && (lower.includes("users_email_key") || lower.includes("email") || lower.includes("unique constraint")))
+      ) {
         toast({ title: "acc cannot be created as ir exists", description: "Use Sign In instead.", variant: "destructive" });
         setTab("login");
       } else {
