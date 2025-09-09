@@ -10,13 +10,14 @@ interface TabNavigationProps {
 }
 
 const tabs = [
-  { id: "dashboard", label: "Dashboard", icon: Shield },
-  { id: "training", label: "Training", icon: BookOpen },
-  { id: "compliance", label: "Compliance", icon: FileCheck },
-  { id: "alerts", label: "Alerts", icon: AlertTriangle }
+  { id: "dashboard", labelKey: "tabs.dashboard", fallback: "Dashboard", icon: Shield },
+  { id: "training", labelKey: "tabs.training", fallback: "Training", icon: BookOpen },
+  { id: "compliance", labelKey: "tabs.compliance", fallback: "Compliance", icon: FileCheck },
+  { id: "alerts", labelKey: "tabs.alerts", fallback: "Alerts", icon: AlertTriangle }
 ];
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
+  const { t } = useI18n();
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg">
       <div className="flex justify-around py-2 px-4 max-w-md mx-auto">
