@@ -85,8 +85,32 @@ export default function Auth() {
         return;
       }
       const { session } = await signUpWithPassword(email, password, name, role, normalizedPhone);
-      toast({ title: session ? "Account created" : "Check your email to confirm" });
-      navigate(role === 'vet' ? "/vet" : "/");
+      if (session) {
+        toast({ title: "Account created" });
+        navigate(role === 'vet' ? "/vet" : "/");
+        return;
+      }
+      try {
+        await signInWithPassword(email, password);
+        toast({ title: "Signed in" });
+        navigate(role === 'vet' ? "/vet" : "/");
+      } catch (e: any) {
+        const msg = e?.message || String(e);
+        const low = (msg || '').toLowerCase();
+        if (low.includes('confirm') || low.includes('not confirmed')) {
+          try {
+            const { resendConfirmation } = await import("@/integrations/supabase/api");
+            await resendConfirmation(email);
+          } catch {}
+          toast({ title: "Account already exists", description: "We re-sent the verification email. Please confirm, then sign in.", variant: "destructive" });
+          setTab('login');
+        } else if (low.includes('invalid') && (low.includes('credentials') || low.includes('password') || low.includes('login'))) {
+          toast({ title: "Account cannot be created as it exists", description: "Use Sign In instead.", variant: "destructive" });
+          setTab('login');
+        } else {
+          toast({ title: "Check your email to confirm" });
+        }
+      }
     } catch (err: any) {
       const message = err?.message || String(err);
       const lower = (message || "").toLowerCase();
