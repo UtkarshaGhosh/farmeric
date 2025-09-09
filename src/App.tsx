@@ -52,7 +52,6 @@ const App = () => (
       <Toaster />
       <Sonner />
       <I18nProvider>
-        <LanguageSwitcher />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
