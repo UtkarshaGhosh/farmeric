@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { listFarmsWithLatestAssessment } from "@/integrations/supabase/api";
+import { useI18n } from "@/lib/i18n";
 
 export default function VetFarms() {
   const [farms, setFarms] = useState<any[]>([]);
@@ -30,23 +31,24 @@ export default function VetFarms() {
     });
   },[farms,q,risk,district]);
 
+  const { t } = useI18n();
   return (
     <div className="space-y-4">
       <div className="grid md:grid-cols-3 gap-3">
-        <Input placeholder="Search by farm ID or farmer name" value={q} onChange={(e)=>setQ(e.target.value)} />
+        <Input placeholder={t("vet.searchPlaceholder","Search by farm ID or farmer name")} value={q} onChange={(e)=>setQ(e.target.value)} />
         <Select value={risk} onValueChange={setRisk}>
-          <SelectTrigger><SelectValue placeholder="Risk Level" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("common.riskLevel","Risk Level")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Risks</SelectItem>
-            <SelectItem value="low">Low</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="high">High</SelectItem>
+            <SelectItem value="all">{t("vet.allRisks","All Risks")}</SelectItem>
+            <SelectItem value="low">{t("common.low","Low")}</SelectItem>
+            <SelectItem value="medium">{t("common.medium","Medium")}</SelectItem>
+            <SelectItem value="high">{t("common.high","High")}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={district} onValueChange={setDistrict}>
-          <SelectTrigger><SelectValue placeholder="District" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("common.district","District")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Districts</SelectItem>
+            <SelectItem value="all">{t("common.districtsAll","All Districts")}</SelectItem>
             {districts.map((d)=>(<SelectItem key={d} value={d}>{d}</SelectItem>))}
           </SelectContent>
         </Select>
@@ -61,11 +63,11 @@ export default function VetFarms() {
             </div>
             <div className="text-right">
               <div className="uppercase text-xs">{f.risk_level || 'unknown'}</div>
-              <div className="text-xs text-muted-foreground">Last: {f.last_assessed ? new Date(f.last_assessed).toLocaleDateString() : '—'}</div>
+              <div className="text-xs text-muted-foreground">{t("vet.last","Last")}:{" "}{f.last_assessed ? new Date(f.last_assessed).toLocaleDateString() : '—'}</div>
             </div>
           </Card>
         ))}
-        {filtered.length===0 && <div className="text-sm text-muted-foreground">No farms match your filters.</div>}
+        {filtered.length===0 && <div className="text-sm text-muted-foreground">{t("vet.noFarmsMatch","No farms match your filters.")}</div>}
       </div>
     </div>
   );
