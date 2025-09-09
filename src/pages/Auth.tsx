@@ -41,7 +41,7 @@ export default function Auth() {
     const emailNorm = email.trim().toLowerCase();
     if (!isValidEmail(emailNorm)) { setLoading(false); toast({ title: "Invalid email", description: "Enter a valid email address." }); return; }
     try {
-      await signInWithPassword(email, password);
+      await signInWithPassword(emailNorm, password);
       const prof = await (await import("@/integrations/supabase/api")).getUserProfile();
       toast({ title: "Signed in" });
       navigate(prof?.role === 'vet' ? "/vet" : "/");
