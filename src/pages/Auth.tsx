@@ -136,7 +136,11 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[320px,1fr] gap-6 items-center">
+        <div className="hidden md:flex items-center justify-center">
+          <img src="/placeholder.svg" alt="Logo" className="max-w-[220px] w-full h-auto opacity-90" />
+        </div>
+        <Card className="w-full max-w-md mx-auto md:mx-0">
         <CardHeader>
           <CardTitle>Welcome</CardTitle>
           <CardDescription>Sign in or create an account</CardDescription>
@@ -204,6 +208,7 @@ export default function Auth() {
           </Tabs>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
